@@ -70,6 +70,10 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/update_vehiculo' , [ConductorController::class, 'update_vehiculo'])->name('update_vehiculo'); // GUARAR DATOS DEL CONDUCTOR
         Route::post('/store_tip_dato' , [ConductorController::class, 'store_tip_dato'])->name('store_tip_dato'); // GUARAR DATOS DEL CONDUCTOR
         Route::post('/delete_tip_dato' , [ConductorController::class, 'delete_tip_dato'])->name('delete_tip_dato'); // GUARAR DATOS DEL CONDUCTOR
+
+        Route::get('/padron_conductor_pdf/{idconductor}' , [ConductorController::class, 'padron_conductor_pdf'])->name('padron_conductor_pdf'); // EXPORTA EN UN FORMATO PDF
+
+
         
     });
 
@@ -81,6 +85,10 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/reg_completo/{idvehiculo}' , [VehiculoController::class, 'reg_completo'])->name('reg_completo');
         Route::post('/modals/md_vehiculo_edit' , [VehiculoController::class, 'md_vehiculo_edit'])->name('modals.md_vehiculo_edit');
         Route::post('/update_vehiculo' , [VehiculoController::class, 'update_vehiculo'])->name('update_vehiculo'); // GUARAR DATOS DEL CONDUCTOR
+        Route::post('/store_tip_dato' , [VehiculoController::class, 'store_tip_dato'])->name('store_tip_dato'); // GUARAR DATOS DEL CONDUCTOR
+        Route::post('/delete_tip_dato' , [VehiculoController::class, 'delete_tip_dato'])->name('delete_tip_dato'); // GUARAR DATOS DEL CONDUCTOR
+
+        Route::get('/padron_vehiculo_pdf/{idvehiculo}' , [VehiculoController::class, 'padron_vehiculo_pdf'])->name('padron_vehiculo_pdf'); // EXPORTA EN UN FORMATO PDF
 
     });
 

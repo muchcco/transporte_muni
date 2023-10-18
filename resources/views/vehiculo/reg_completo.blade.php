@@ -208,14 +208,15 @@ var btnEditVehiculo = (idvehiculo, idpersona) =>{
 
 var btnUpdateVehiculo = (idvehiculo) => {
 
-
     var formData = new FormData();    
     formData.append("idvehiculo", idvehiculo);
     formData.append("categoria", $("#categoria").val());
     formData.append("subtipo", $("#subtipo").val());
     formData.append("n_placa", $("#n_placa").val());
+    formData.append("tipologia", $("#tipologia").val());
     formData.append("combustible", $("#combustible").val());
     formData.append("serie", $("#serie").val());
+    formData.append("pago_padron", $("#pago_padron").val());
     formData.append("color", $("#color").val());
     formData.append("año_fabricacion", $("#año_fabricacion").val());
     formData.append("n_asientos", $("#n_asientos").val());
@@ -336,7 +337,7 @@ var btnCargarArchivos = (idvehiculo) =>{
             type: "POST",
             dataType: "json",
             cache: false,
-            url: "{{ route('conductor.store_tip_dato') }}",
+            url: "{{ route('vehiculo.store_tip_dato') }}",
             data: formData,
             processData: false,
             contentType: false,
@@ -511,9 +512,9 @@ var btnDeleteArchivo = (idvehiculo_archivo) => {
                                 </span>
                                 <!--end::Svg Icon-->
                             </span></div>
-                            <span data-bs-toggle="tooltip" data-bs-trigger="hover" title="" data-bs-original-title="Edit customer details">
+                            {{-- <span data-bs-toggle="tooltip" data-bs-trigger="hover" title="" data-bs-original-title="Edit customer details">
                                 <button type="button" class="btn btn-sm btn-light-primary" data-toggle="modal" data-target="#large-Modal"  onclick="btnEditPersona('{{ $persona->idpersona }}')">Editar</button>
-                            </span>
+                            </span> --}}
                         </div>
                         <!--end::Details toggle-->
                         <div class="separator"></div>
@@ -635,6 +636,23 @@ var btnDeleteArchivo = (idvehiculo_archivo) => {
                                             <tr>
                                                 <th>N° DE PADRON:</th>
                                                 <th colspan="3">{{ $vehiculo->n_padron }}</th>
+                                            </tr>
+                                            <tr>
+                                                <th>PAGO DE EMPADRONAMIENTO:</th>
+                                                @if ($vehiculo->pago_padron == '1')
+                                                    <th colspan="3">
+                                                        <div class="badge badge-lg badge-light-danger d-inline">
+                                                        No realizó el pago
+                                                        <i class="fas fa-exclamation-circle ms-2 fs-7" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-html="true" data-bs-content="Se tiene que realizar la suma de S/. 10.00 (DIEZ Y 00/  SOLES) por dicho concepto en caja, con el código 1.328.199.303 establecido en el TUPA"></i>
+                                                        </div>
+                                                    </th>
+                                                @elseif($vehiculo->pago_padron == '2')
+                                                    <th colspan="3">
+                                                        <div class="badge badge-lg badge-light-success d-inline pt-2">
+                                                            Realizó el pago <a href="{{ route('vehiculo.padron_vehiculo_pdf', $vehiculo->idvehiculo) }}" target="_blank">descargar</a>
+                                                        </div>
+                                                    </th>
+                                                @endif
                                             </tr>
                                             <tr>
                                                 <th>PLACA:</th>

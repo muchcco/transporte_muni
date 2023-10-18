@@ -11,6 +11,8 @@ use Carbon\Carbon;
 use Illuminate\Support\Str;
 use App\Models\Vehiculo;
 use App\Models\Archivo;
+use App\Models\Archivoconductor;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class ConductorController extends Controller
 {
@@ -65,55 +67,85 @@ class ConductorController extends Controller
 
             $search = Persona::where('dni', $request->dni)->first();
 
-            if($search != NULL){
+            $conductor = Conductor::where('idpersona', $search->idpersona)->first();
 
+            // dd($conductor);
+
+            if($conductor == NULL){
+                if($search != NULL){
+
+                    $conduc_padron = DB::table('db_conductor')->orderby('idconductor', 'DESC')->first();
+    
+                    if(isset($conduc_padron->n_padron)){
+                        $cont_ = $conduc_padron->n_padron + 1;
+                        // dd($cont_);
+                        $codpadron = Str::padLeft($cont_, 8, '0');
+                    }else{
+                        $codpadron = '00000001';
+                    }
+    
+    
+                    $save = new Conductor;
+                    $save->idpersona = $search->idpersona;
+                    $save->n_padron = $codpadron;
+                    $save->mes = Carbon::now()->format('m');
+                    $save->año = Carbon::now()->format('Y');
+                    $save->save();
+    
+                    return $save;
+    
+    
+                }else{
+                    
+                    $persona = new Persona;
+                    $persona->dni = $request->dni;
+                    $persona->nombre = $request->nombre;
+                    $persona->apellido_pat = $request->ape_pat;
+                    $persona->apellido_mat = $request->ape_mat;
+                    $persona->sexo = $request->sexo;
+                    $persona->direccion = $request->direccion;
+                    $persona->tipo_documento = $request->tipo_documento;
+                    $persona->correo = $request->correo;
+                    $persona->iddistrito = $request->distrito;
+                    $persona->celular = $request->celular;
+                    $persona->ref_direccion = $request->dir_referencia;
+                    $persona->save(); 
+
+                    dd($persona);
+                    
+                    $conduc_padron = DB::table('db_conductor')->orderby('idconductor', 'DESC')->first();
+    
+                    if(isset($conduc_padron->n_padron)){
+                        $cont_ = $conduc_padron->n_padron + 1;
+                        // dd($cont_);
+                        $codpadron = Str::padLeft($cont_, 8, '0');
+                    }else{
+                        $codpadron = '00000001';
+                    }
+    
+    
+                    $save = new Conductor;
+                    $save->idpersona = $persona->idpersona;
+                    $save->n_padron = $codpadron;
+                    $save->mes = Carbon::now()->format('m');
+                    $save->año = Carbon::now()->format('Y');
+                    $save->save();
+    
+                    return $save;
+    
+                    // DB::commit();
+                }           
+            }else{
                 $response_ = response()->json([
                     'data' => null,
-                    'error' => "El DNI ya fue registrado",
+                    'error' => "El CONDUCTOR ya fue registrado",
                     'message' => 'BAD'
                 ], 200);
 
                 return $response_;
+            }
 
-
-            }else{
-                
-                $persona = new Persona;
-                $persona->dni = $request->dni;
-                $persona->nombre = $request->nombre;
-                $persona->apellido_pat = $request->ape_pat;
-                $persona->apellido_mat = $request->ape_mat;
-                $persona->sexo = $request->sexo;
-                $persona->direccion = $request->direccion;
-                $persona->tipo_documento = $request->tipo_documento;
-                $persona->correo = $request->correo;
-                $persona->iddistrito = $request->distrito;
-                $persona->celular = $request->celular;
-                $persona->ref_direccion = $request->dir_referencia;
-                $persona->save(); 
-                
-                $conduc_padron = DB::table('db_conductor')->orderby('idconductor', 'DESC')->first();
-
-                if(isset($conduc_padron->n_padron)){
-                    $cont_ = $conduc_padron->n_padron + 1;
-                    // dd($cont_);
-                    $codpadron = Str::padLeft($cont_, 5, '0');
-                }else{
-                    $codpadron = '00001';
-                }
-
-
-                $save = new Conductor;
-                $save->idpersona = $persona->idpersona;
-                $save->n_padron = $codpadron;
-                $save->mes = Carbon::now()->format('m');
-                $save->año = Carbon::now()->format('Y');
-                $save->save();
-
-                return $save;
-
-                // DB::commit();
-            }            
+             
     
 
         }catch (\Exception $e) {
@@ -139,29 +171,13 @@ class ConductorController extends Controller
                                     ->select('db_categoria_licencia.descripcion')
                                     ->first();
 
-        $vehiculo = Vehiculo::join('db_persona', 'db_persona.idpersona', '=', 'db_vehiculo.idpersona')->where('db_persona.idpersona', $conductor->idpersona)->first();
+        $archivos = Archivoconductor::join('db_vehiculo_tipo_dato','db_vehiculo_tipo_dato.idtipo_dato', '=', 'db_conductor_archivo.idtipo_dato')
+                                    ->where('db_conductor_archivo.idconductor', $conductor->idconductor)
+                                    ->get();
 
-        if(isset($vehiculo)){
+        $tipo_dato = DB::table('db_vehiculo_tipo_dato')->where('tipo_seleccion', 2)->get();
 
-            $marca_v = DB::table('db_vehiculo_tipo as t')->join('db_vehiculo_subtipo as s', 's.id_tipo_vehiculo', '=', 't.idtipo_vehiculo')
-                        ->select('t.min_nombre as name_marca', 's.min_nombre as name_modelo')
-                        ->where('s.idsubtipo_vehiculo', $vehiculo->idmodelo)
-                        ->first();
-
-            $archivos = Archivo::join('db_vehiculo_tipo_dato','db_vehiculo_tipo_dato.idtipo_dato', '=', 'db_vehiculo_archivo.idtipo_dato')
-                                ->where('db_vehiculo_archivo.idvehiculo', $vehiculo->idvehiculo)
-                                ->get();
-        }else{
-            $marca_v = '';
-            $archivos = NULL;
-        }
-
-        $tipo_dato = DB::table('db_vehiculo_tipo_dato')->get();
-
-        
-
-        // dd($vehiculo);
-        return view('conductor.reg_completo', compact('conductor', 'vehiculo', 'tipo_licencia', 'marca_v', 'tipo_dato', 'archivos'));
+        return view('conductor.reg_completo', compact('conductor',  'tipo_licencia', 'tipo_dato', 'archivos'));
     }
 
     public function md_edit_persona(Request $request)
@@ -223,11 +239,12 @@ class ConductorController extends Controller
     {
         $update = Conductor::findOrFail($request->idconductor);
         $update->idcategoria_licencia = $request->idcategoria_licencia;
+        $update->pago_padron = $request->pago_padron;
         $update->n_brevete = $request->n_brevete;
         $update->fecha_expedicion_brevete = $request->fecha_expedicion_brevete;
         $update->fecha_vencimiento_brevete = $request->fecha_vencimiento_brevete;
         $update->save();
-
+        
 
         return $update;
     }
@@ -241,40 +258,6 @@ class ConductorController extends Controller
         $view = view('conductor.modals.md_vehiculo', compact('persona', 'tipo_v'))->render();
 
         return response()->json(['html' => $view]);
-    }
-
-    public function store_vehiculo (Request $request)
-    {
-
-        $vehiculo_padron = DB::table('db_vehiculo')->orderby('idvehiculo', 'DESC')->first();
-
-        if(isset($vehiculo_padron->n_padron)){
-            $cont_ = $vehiculo_padron->n_padron + 1;
-            // dd($cont_);
-            $codpadron = Str::padLeft($cont_, 5, '0');
-        }else{
-            $codpadron = '00001';
-        }
-
-        $save = new vehiculo;
-        $save->idpersona = $request->idpersona;
-        $save->cat_clase = $request->categoria;
-        $save->idmodelo = $request->subtipo;
-        $save->n_placa = $request->n_placa;
-        $save->combustible = $request->combustible;
-        $save->serie = $request->serie;
-        $save->color = $request->color;
-        $save->año_fabricacion = $request->año_fabricacion;
-        $save->n_asientos = $request->n_asientos;
-        $save->motor = $request->motor;
-        $save->carroceria = $request->carroceria;
-        $save->n_padron = $codpadron;
-        $save->año = Carbon::now()->format('Y');
-        $save->mes = Carbon::now()->format('m');
-        $save->save();
-
-        return $save;
-
     }
 
     public function md_vehiculo_edit(Request $request)
@@ -301,7 +284,7 @@ class ConductorController extends Controller
         $idvehiculo = $request->idvehiculo;
 
         $update = Vehiculo::findOrFail($idvehiculo);
-        $update->cat_clase = $request->categoria;
+        $update->cat_clase = $request->categoria;        
         $update->idmodelo = $request->subtipo;
         $update->n_placa = $request->n_placa;
         $update->combustible = $request->combustible;
@@ -326,17 +309,17 @@ class ConductorController extends Controller
         ]);
 
 
-        $persona = Persona::join('db_vehiculo', 'db_vehiculo.idpersona', '=', 'db_persona.idpersona')->where('db_vehiculo.idvehiculo', $request->idvehiculo)->first();
+        $persona = Persona::join('db_conductor', 'db_conductor.idpersona', '=', 'db_persona.idpersona')->where('db_conductor.idconductor', $request->idconductor)->first();
 
-        $estructura_carp = 'archivo\\'.$persona->dni;
+        $estructura_carp = 'archivo\\conductor\\'.$persona->dni;
 
         if (!file_exists($estructura_carp)) {
             mkdir($estructura_carp, 0777, true);
         }
 
-        $save = new Archivo;
+        $save = new Archivoconductor;
         $save->idtipo_dato = $request->idtipo_dato;
-        $save->idvehiculo = $request->idvehiculo;
+        $save->idconductor = $request->idconductor;
         $save->fecha_expedicion = $request->fecha_exp;
         $save->fecha_vencimiento = $request->fecha_vence;
         if($request->hasFile('ruta'))
@@ -357,8 +340,30 @@ class ConductorController extends Controller
 
     public function delete_tip_dato(Request $request)
     {
-        $delete = Archivo::where('idvehiculo_archivo', $request->idvehiculo_archivo)->delete();
+        $delete = Archivoconductor::where('idconductor_archivo', $request->idconductor_archivo)->delete();
 
         return $delete;
+    }
+
+    public function padron_conductor_pdf(Request $request, $idconductor)
+    {
+        $conductor =  Conductor::where('idconductor', $idconductor)->first();
+
+        $persona = Persona::where('idpersona', $conductor->idpersona)->first();
+
+        $tipo_licencia = DB::table('db_clase_licencia')->join('db_categoria_licencia', 'db_categoria_licencia.idclase_licencia', '=', 'db_clase_licencia.idclase_licencia')
+                        ->where('db_categoria_licencia.idcategoria_licencia', $conductor->idcategoria_licencia)
+                        ->select('db_categoria_licencia.descripcion')
+                        ->first();
+
+        $dep_persona = DB::table('ubigeo_peru_districts')
+                        ->join('ubigeo_peru_provinces', 'ubigeo_peru_provinces.id', '=', 'ubigeo_peru_districts.province_id')
+                        ->join('ubigeo_peru_departments', 'ubigeo_peru_departments.id','=','ubigeo_peru_districts.department_id')
+                        ->select('ubigeo_peru_districts.id as iddistrito', 'ubigeo_peru_districts.name as name_dist', 'ubigeo_peru_provinces.id as idprovincia', 'ubigeo_peru_provinces.name as name_prov', 'ubigeo_peru_departments.id as iddepartamento', 'ubigeo_peru_departments.name as name_dep')
+                        ->where('ubigeo_peru_districts.id', $persona->iddistrito)
+                        ->first();
+
+        $pdf = Pdf::loadView('conductor.padron_conductor_pdf', compact('conductor', 'persona', 'dep_persona', 'tipo_licencia'))->setPaper('a4');
+        return $pdf->stream();
     }
 }

@@ -208,6 +208,7 @@ var btnSaveConductor = (idconductor) => {
 
     var formData = new FormData();
     formData.append("idconductor", idconductor);
+    formData.append("pago_padron", $("#pago_padron").val());
     formData.append("idcategoria_licencia", $("#idcategoria_licencia").val());
     formData.append("n_brevete", $("#n_brevete").val());
     formData.append("fecha_expedicion_brevete", $("#fecha_expedicion_brevete").val());
@@ -489,14 +490,14 @@ function VarlidarDatos(){
 /* =================================================================== FIN VALIDAR INPUT DE CARGA =============================================================== */
 
 
-var btnCargarArchivos = (idvehiculo) =>{
+var btnCargarArchivos = (idconductor) =>{
     r = VarlidarDatos();
 
     if(r.flag){
         var formData = new FormData();   
         var file_data = $("#ruta").prop("files")[0];
         formData.append("ruta", file_data); 
-        formData.append("idvehiculo", idvehiculo);
+        formData.append("idconductor", idconductor);
         formData.append("fecha_exp", $("#fecha_exp").val());
         formData.append("fecha_vence", $("#fecha_vence").val());
         formData.append("idtipo_dato", $("#idtipo_dato").val());
@@ -656,7 +657,7 @@ var btnDeleteArchivo = (idvehiculo_archivo) => {
                             <!--begin::Info-->
                             <!--begin::Info heading-->
                             <div class="fw-bolder mb-3">N° de padron
-                            <i class="fas fa-exclamation-circle ms-2 fs-7" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-html="true" data-bs-content="Correlativo para el año {{ $conductor->año }}" data-bs-original-title="" title=""></i></div>
+                            <i class="fas fa-exclamation-circle ms-2 fs-7" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-html="true" data-bs-content="Dato único del conductor, asignado por la Municipalidad de Huancavelica"></i></div>
                             <!--end::Info heading-->
                             <div class="d-flex flex-wrap flex-center">
                                 <!--begin::Stats-->
@@ -684,7 +685,7 @@ var btnDeleteArchivo = (idvehiculo_archivo) => {
                                 </span>
                                 <!--end::Svg Icon-->
                             </span></div>
-                            <span data-bs-toggle="tooltip" data-bs-trigger="hover" title="" data-bs-original-title="Edit customer details">
+                            <span data-bs-toggle="tooltip" data-bs-trigger="hover" title="" data-bs-original-title="Editar persona">
                                 <button type="button" class="btn btn-sm btn-light-primary" data-toggle="modal" data-target="#large-Modal"  onclick="btnEditPersona('{{ $conductor->idpersona }}')">Editar</button>
                             </span>
                         </div>
@@ -727,7 +728,7 @@ var btnDeleteArchivo = (idvehiculo_archivo) => {
                                 </span>
                                 <!--end::Svg Icon-->
                             </span></div>
-                            <span data-bs-toggle="tooltip" data-bs-trigger="hover" title="" data-bs-original-title="Edit customer details">
+                            <span data-bs-toggle="tooltip" data-bs-trigger="hover" title="" data-bs-original-title="Editar conductor">
                                 <button type="button" class="btn btn-sm btn-light-primary" data-toggle="modal" data-target="#large-Modal"  onclick="btnEditConductor('{{ $conductor->idconductor }}')">Editar</button>
                             </span>
                         </div>
@@ -741,6 +742,17 @@ var btnDeleteArchivo = (idvehiculo_archivo) => {
                                     <!--begin::Details item-->
                                     <div class="fw-bolder mt-5">Tipo de Licencia</div>
                                     <div class="text-gray-600">{{ $tipo_licencia->descripcion }}</div>
+                                    <div class="fw-bolder mt-5">Pagó derecho de empadronamiento? </div>
+                                    <div class="text-gray-600">
+                                        @if ($conductor->pago_padron == '1')
+                                            <div class="badge badge-lg badge-light-danger d-inline">
+                                                No realizó el pago 
+                                                <i class="fas fa-exclamation-circle ms-2 fs-7" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-html="true" data-bs-content="Se tiene que realizar la suma de S/. 10.00 (DIEZ Y 00/  SOLES) por dicho concepto en caja, con el código 1.3.28.199.33 establecido en el TUPA"></i>
+                                            </div>
+                                        @elseif($conductor->pago_padron == '2')
+                                            <div class="badge badge-lg badge-light-success d-inline pt-2">Realizó el pago  <a href="{{ route('conductor.padron_conductor_pdf', $conductor->idconductor) }}" target="_blank">Descargar</a></div>
+                                        @endif
+                                    </div>
                                     <!--begin::Details item-->
                                     <!--begin::Details item-->
                                     <div class="fw-bolder mt-5">Número de Licencia</div>
@@ -782,7 +794,7 @@ var btnDeleteArchivo = (idvehiculo_archivo) => {
                 <ul class="nav nav-custom nav-tabs nav-line-tabs nav-line-tabs-2x border-0 fs-4 fw-bold mb-8">
                     <!--begin:::Tab item-->
                     <li class="nav-item">
-                        <a class="nav-link text-active-primary pb-4 active" data-bs-toggle="tab" href="#kt_user_view_overview_tab">Vehículo</a>
+                        <a class="nav-link text-active-primary pb-4 active" data-bs-toggle="tab" href="#kt_user_view_overview_tab">Archivos</a>
                     </li>
                     <!--end:::Tab item-->
                 </ul>
@@ -792,117 +804,6 @@ var btnDeleteArchivo = (idvehiculo_archivo) => {
                     <!--begin:::Tab pane-->
                     <div class="tab-pane fade show active" id="kt_user_view_overview_tab" role="tabpanel">
                         <!--begin::Card-->
-                        <div class="card card-flush mb-6 mb-xl-9">
-                            <!--begin::Card header-->
-                            <div class="card-header mt-6">
-                                <!--begin::Card title-->
-                                <div class="card-title flex-column">
-                                    <h2 class="mb-1">Datos del Vehículo</h2>
-                                    <div class="fs-6 fw-bold text-muted">Asignado al conductor {{ $conductor->apellido_pat }} {{ $conductor->apellido_mat }}, {{ $conductor->nombre }}</div>
-                                </div>
-                                <!--end::Card title-->
-                                <!--begin::Card toolbar-->
-                                <div class="card-toolbar" id="vehiculo_asig">
-                                    @if (!($vehiculo))
-                                        <button type="button" class="btn btn-light-danger btn-sm" data-toggle="modal" data-target="#large-Modal"  onclick="btnAsigVehiculo('{{ $conductor->idpersona }}')">
-                                        <!--SVG file not found: media/icons/duotune/art/art008.svg-->
-                                        Agregar Vehículo</button>
-                                    @else
-                                        <button type="button" class="btn btn-light-primary btn-sm" data-toggle="modal" data-target="#large-Modal"  onclick="btnEditVehiculo('{{ $vehiculo->idvehiculo }}', '{{ $conductor->idpersona }}')">
-                                        <!--SVG file not found: media/icons/duotune/art/art008.svg-->
-                                        Editar Vehículo</button>
-                                    @endif
-                                    
-                                </div>
-                                <!--end::Card toolbar-->
-                            </div>
-                            <!--end::Card header-->
-                            <!--begin::Card body-->
-                            <div class="card-body p-9 pt-4">
-                               <div class="division" id="vehiculo_div">
-                                    <div id="porcentaje_veh"></div>
-                                    @if (!($vehiculo))
-                                        <!--begin::Alert-->
-                                        <div class="alert alert-dismissible bg-light-danger d-flex flex-center flex-column py-10 px-10 px-lg-20 mb-10">
-                                            
-
-                                            <!--begin::Icon-->
-                                            <span class="svg-icon svg-icon-5tx svg-icon-danger mb-5">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                                                    <rect opacity="0.3" x="2" y="2" width="20" height="20" rx="10" fill="black"></rect>
-                                                    <rect x="11" y="14" width="7" height="2" rx="1" transform="rotate(-90 11 14)" fill="black"></rect>
-                                                    <rect x="11" y="17" width="2" height="2" rx="1" transform="rotate(-90 11 17)" fill="black"></rect>
-                                                </svg>
-                                            </span>
-                                            <!--end::Icon-->
-
-                                            <!--begin::Wrapper-->
-                                            <div class="text-center">
-                                                <!--begin::Title-->
-                                                <h1 class="fw-bolder text-danger mb-5">FALTA INGRESAR DATOS</h1>
-                                                <!--end::Title-->
-
-                                                <!--begin::Separator-->
-                                                <div class="separator separator-dashed border-danger opacity-25 mb-5"></div>
-                                                <!--end::Separator-->
-
-                                                <!--begin::Content-->
-                                                <div class="mb-9 text-dark">
-                                                    No hay datos disponibles en esta sección ya que usted no ha registrado al vehiculo.
-                                                </div>
-                                                <!--end::Content-->
-                                            </div>
-                                            <!--end::Wrapper-->
-                                        </div>
-                                        <!--end::Alert-->
-                                    @else
-                                        <table class="tablas">
-                                            <tr>
-                                                <th>N° DE PADRON:</th>
-                                                <th colspan="3">{{ $vehiculo->n_padron }} - {{ $vehiculo->año }}</th>
-                                            </tr>
-                                            <tr>
-                                                <th>PLACA:</th>
-                                                <th colspan="3">{{ $vehiculo->n_placa }}</th>
-                                            </tr>
-                                            <tr>
-                                                <th>PROPIETARIO:</th>
-                                                <th colspan="3">{{ $conductor->apellido_pat }} {{ $conductor->apellido_mat }}, {{ $conductor->nombre }}</th>
-                                            </tr>
-                                            <tr>
-                                                <th>DOMICILIO:</th>
-                                                <th colspan="3">{{ $vehiculo->direccion }}</th>
-                                            </tr>
-                                            <tr>
-                                                <th>CAT.CLASE:</th>
-                                                <th>{{ $vehiculo->cat_clase }}</th>
-                                                <th>COMBUSTIBLE:</th>
-                                                <th>{{ $vehiculo->combustible }}</th>
-                                            </tr>
-                                            <tr>
-                                                <th>MARCA:</th>
-                                                <th>{{ $marca_v->name_marca }}</th>
-                                                <th>AÑO DE FABRICACION:</th>
-                                                <th>{{ $vehiculo->año_fabricacion }}</th>
-                                            </tr>
-                                            <tr>
-                                                <th>MODELO:</th>
-                                                <th>{{ $marca_v->name_modelo }}</th>
-                                                <th>ASIENTOS:</th>
-                                                <th>{{ $vehiculo->n_asientos }}</th>
-                                            </tr>
-                                            <tr>
-                                                <th>MOTOR:</th>
-                                                <th>{{ $vehiculo->motor }}</th>
-                                                <th>CARROCERIA:</th>
-                                                <th>{{ $vehiculo->carroceria }}</th>
-                                            </tr>
-                                        </table>
-                                    @endif
-                               </div>
-                            </div>
-                            <!--end::Card body-->
-                        </div>
 
                         <div class="card card-flush mb-6 mb-xl-9">
                             <div class="card-header mt-6">
@@ -973,7 +874,7 @@ var btnDeleteArchivo = (idvehiculo_archivo) => {
                                             <div class="row g-7 mb-6">
                                                 <div class="col-md-12 fv-row " >
                                                     <div class="d-grid gap-2">
-                                                        <button class="btn btn-primary btn-sm"  id="cargadar_dato" onclick="btnCargarArchivos('{{ $vehiculo->idvehiculo }}')">
+                                                        <button class="btn btn-primary btn-sm"  id="cargadar_dato" onclick="btnCargarArchivos('{{ $conductor->idconductor }}')">
                                                             <i class="fa fa-regular fa-upload" style="color: #ffffff;"></i>
                                                             Cargar 
                                                         </button>
@@ -1005,7 +906,7 @@ var btnDeleteArchivo = (idvehiculo_archivo) => {
                                                                         </a>
                                                                     </th>
                                                                     <th>
-                                                                        <button class="btn btn-sm  modal-tooglee" data-tippy-content="Eliminar dato vehicular" onclick="btnDeleteArchivo('{{ $arc->idvehiculo_archivo }}')">
+                                                                        <button class="btn btn-sm  modal-tooglee" data-tippy-content="Eliminar dato vehicular" onclick="btnDeleteArchivo('{{ $arc->idconductor_archivo }}')">
                                                                             <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><style>svg{fill:#ad0000}</style><path d="M135.2 17.7L128 32H32C14.3 32 0 46.3 0 64S14.3 96 32 96H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H320l-7.2-14.3C307.4 6.8 296.3 0 284.2 0H163.8c-12.1 0-23.2 6.8-28.6 17.7zM416 128H32L53.2 467c1.6 25.3 22.6 45 47.9 45H346.9c25.3 0 46.3-19.7 47.9-45L416 128z"/></svg>
                                                                         </button>
                                                                         

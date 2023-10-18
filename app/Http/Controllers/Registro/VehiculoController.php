@@ -10,6 +10,7 @@ use App\Models\Persona;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 use App\Models\Archivo;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class VehiculoController extends Controller
 {
@@ -130,7 +131,7 @@ class VehiculoController extends Controller
                             ->where('db_vehiculo_archivo.idvehiculo', $vehiculo->idvehiculo)
                             ->get();
 
-        $tipo_dato = DB::table('db_vehiculo_tipo_dato')->get();
+        $tipo_dato = DB::table('db_vehiculo_tipo_dato')->where('tipo_seleccion', 1)->get();
 
         
 
@@ -151,7 +152,7 @@ class VehiculoController extends Controller
                                 ->where('s.idsubtipo_vehiculo', $vehiculo->idmodelo)
                                 ->first();
 
-        // dd($tipo_select);
+        //dd($vehiculo);
 
         $view = view('vehiculo.modals.md_vehiculo_edit', compact('persona', 'tipo_v', 'vehiculo', 'tipo_select'))->render();
 
@@ -166,6 +167,8 @@ class VehiculoController extends Controller
         $update->cat_clase = $request->categoria;
         $update->idmodelo = $request->subtipo;
         $update->n_placa = $request->n_placa;
+        $update->tipologia = $request->tipologia;
+        $update->pago_padron = $request->pago_padron;
         $update->combustible = $request->combustible;
         $update->serie = $request->serie;
         $update->color = $request->color;
@@ -176,5 +179,66 @@ class VehiculoController extends Controller
         $update->save();
 
         return $update;
+    }
+
+    public function store_tip_dato(Request $request)
+    {
+        $validated = $request->validate([
+            'idtipo_dato' => 'required',
+            'fecha_exp' => 'required',
+            'fecha_vence' => 'required',
+            'ruta' => 'required',
+        ]);
+
+
+        $persona = Persona::join('db_vehiculo', 'db_vehiculo.idpersona', '=', 'db_persona.idpersona')->where('db_vehiculo.idvehiculo', $request->idvehiculo)->first();
+
+        $estructura_carp = 'archivo\\vehiculo\\'.$persona->dni;
+
+        if (!file_exists($estructura_carp)) {
+            mkdir($estructura_carp, 0777, true);
+        }
+
+        $save = new Archivo;
+        $save->idtipo_dato = $request->idtipo_dato;
+        $save->idvehiculo = $request->idvehiculo;
+        $save->fecha_expedicion = $request->fecha_exp;
+        $save->fecha_vencimiento = $request->fecha_vence;
+        if($request->hasFile('ruta'))
+        {
+            $archivoIMG = $request->file('ruta');
+            $nombreIMG = $archivoIMG->getClientOriginalName();
+            //$nameruta = '/img/fotoempresa/'; // RUTA DONDE SE VA ALMACENAR EL DOCUMENTO PDF
+            $nameruta = $estructura_carp;  // GUARDAR EN UN SERVIDOR
+            $archivoIMG->move($nameruta, $nombreIMG);
+
+            $save->nombre_archivo = $nombreIMG;
+            $save->ruta = $estructura_carp.'\\'.$nombreIMG;
+        }
+        $save->save();
+
+        return $save;
+    }
+
+    public function padron_vehiculo_pdf(Request $request, $idvehiculo)
+    {
+        $vehiculo = Vehiculo::where('idvehiculo', $idvehiculo)->first();
+
+        $persona = Persona::where('idpersona', $vehiculo->idpersona)->first();
+
+        $marca_v = DB::table('db_vehiculo_tipo as t')->join('db_vehiculo_subtipo as s', 's.id_tipo_vehiculo', '=', 't.idtipo_vehiculo')
+                        ->select('t.min_nombre as name_marca', 's.min_nombre as name_modelo')
+                        ->where('s.idsubtipo_vehiculo', $vehiculo->idmodelo)
+                        ->first();
+
+        $dep_persona = DB::table('ubigeo_peru_districts')
+                        ->join('ubigeo_peru_provinces', 'ubigeo_peru_provinces.id', '=', 'ubigeo_peru_districts.province_id')
+                        ->join('ubigeo_peru_departments', 'ubigeo_peru_departments.id','=','ubigeo_peru_districts.department_id')
+                        ->select('ubigeo_peru_districts.id as iddistrito', 'ubigeo_peru_districts.name as name_dist', 'ubigeo_peru_provinces.id as idprovincia', 'ubigeo_peru_provinces.name as name_prov', 'ubigeo_peru_departments.id as iddepartamento', 'ubigeo_peru_departments.name as name_dep')
+                        ->where('ubigeo_peru_districts.id', $persona->iddistrito)
+                        ->first();
+
+        $pdf = Pdf::loadView('vehiculo.padron_vehiculo_pdf', compact('vehiculo', 'persona', 'marca_v', 'dep_persona'))->setPaper('a4');
+        return $pdf->stream();
     }
 }

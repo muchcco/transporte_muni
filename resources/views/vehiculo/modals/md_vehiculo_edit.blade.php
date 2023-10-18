@@ -23,7 +23,7 @@
                 <input type="hidden" name="_token" id="_token" value="{{ csrf_token() }}" />                
                 <div id="seccion_personales" class="">
                     <br />
-                    <h5>Datos del vehiculo asignado al conductor - {{ $persona->apellido_pat }} {{ $persona->apellido_mat }}, {{ $persona->nombre }}</h5>
+                    <h5>Datos del vehiculo asignado al responsable - {{ $persona->apellido_pat }} {{ $persona->apellido_mat }}, {{ $persona->nombre }}</h5>
                         <br />
 
                     <div class="row g-7 mb-6">
@@ -93,6 +93,19 @@
                         <div class="col-md-4 fv-row">
                             <label class="required fs-6 fw-bold mb-2 ">Carroceria</label>
                             <input type="text" class="form-control form-control-solid"  id="carroceria" name="carroceria"  oninput="convertirAMayusculas(this)" value="{{ $vehiculo->carroceria }}">
+                        </div>
+                        <div class="col-md-4 fv-row">
+                            <label class="required fs-6 fw-bold mb-2">Tipologia </label>
+                            <input type="text" class="form-control form-control-solid"  id="tipologia" name="tipologia"  oninput="convertirAMayusculas(this)" value="{{ $vehiculo->tipologia }}">
+                        </div>
+                    </div>
+                    <div class="row g-7 mb-6">
+                        <div class="col-md-4 fv-row">
+                            <label class="required fs-6 fw-bold mb-2">Pagó derecho de empadronamiento? </label>
+                            <select class="form-select form-select-solid" name="pago_padron" id="pago_padron" >
+                                <option value="1" {{ $vehiculo->pago_padron == '1' ? 'selected' : '' }}>NO</option>
+                                <option value="2" {{ $vehiculo->pago_padron == '2' ? 'selected' : '' }}>SI</option>
+                            </select>
                         </div>
                     </div>
                

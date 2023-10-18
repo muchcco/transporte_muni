@@ -26,6 +26,7 @@ class Vehiculo extends Model
                             'color',
                             'carroceria',
                             'mes',
+                            'tipologia',
                             'año',
                             'n_padron',
                             'pago_padron',

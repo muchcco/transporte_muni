@@ -190,97 +190,7 @@
             }
         });
     }
-
-    var btnEditConductor = (idconductor) => {
-        console.log(idconductor);
-        $.ajax({
-            type:'post',
-            url: "{{ route('conductor.modals.md_edit_conductor') }}",
-            dataType: "json",
-            data:{"_token": "{{ csrf_token() }}", idconductor : idconductor},
-            success:function(data){
-                $("#modal_add_em").html(data.html);
-                $("#modal_add_em").modal('show');
-            }
-        });
-
-    }
-
-    var btnSaveConductor = (idconductor) => {
-
-        var formData = new FormData();
-        formData.append("idconductor", idconductor);
-        formData.append("idcategoria_licencia", $("#idcategoria_licencia").val());
-        formData.append("n_brevete", $("#n_brevete").val());
-        formData.append("fecha_expedicion_brevete", $("#fecha_expedicion_brevete").val());
-        formData.append("fecha_vencimiento_brevete", $("#fecha_vencimiento_brevete").val());
-        formData.append("_token", $("#_token").val());
-
-        // Selector para mostrar el porcentaje
-        var porcentajeElemento = $('#porcentaje_b');
-
-        $.ajax({
-            type: "POST",
-            dataType: "json",
-            cache: false,
-            url: "{{ route('conductor.update_conductor_princ') }}",
-            data: formData,
-            processData: false,
-            contentType: false,
-            beforeSend: function () {
-                document.getElementById("btnEnviarForm").innerHTML = '<i class="fa fa-spinner fa-spin"></i> Cargando datos...';
-                document.getElementById("btnEnviarForm").disabled = true;
-                porcentajeElemento.text('0%');
-            },
-            xhr: function() {
-                var xhr = new window.XMLHttpRequest();
-                xhr.upload.addEventListener('progress', function(e) {
-                    if (e.lengthComputable) {
-                        // Calcula el porcentaje de progreso y actualiza el elemento
-                        var porcentaje = (e.loaded / e.total) * 100;
-                        porcentajeElemento.text(porcentaje.toFixed(2) + '%');
-                    }
-                }, false);
-                return xhr;
-            },
-            success: function(result){            
-                $("#modal_add_em").modal('hide');
-                $( "#act_brevete" ).load(window.location.href + " #act_brevete" );             
-                porcentajeElemento.text('100%');
-
-                    toastr.options = {
-                        "closeButton": false,
-                        "debug": false,
-                        "newestOnTop": false,
-                        "progressBar": false,
-                        "positionClass": "toast-bottom-right",
-                        "preventDuplicates": false,
-                        "onclick": null,
-                        "showDuration": "300",
-                        "hideDuration": "1000",
-                        "timeOut": "5000",
-                        "extendedTimeOut": "1000",
-                        "showEasing": "swing",
-                        "hideEasing": "linear",
-                        "showMethod": "fadeIn",
-                        "hideMethod": "fadeOut"
-                    };
-
-                    toastr.info("El conductor se guardo con exito!", "Guardado:");
-            },
-            error: function(jqxhr,textStatus,errorThrown){
-                console.log(jqxhr.responseJSON.error);
-                console.log(textStatus);
-                console.log(errorThrown);          
-                
-                document.getElementById("btnEnviarForm").innerHTML = 'ENVIAR';
-                document.getElementById("btnEnviarForm").disabled = false;
-            }
-        });
-
-    }
-
-
+   
     var btnAsigVehiculo = (idpersona) => {
 
         console.log(idpersona);
@@ -523,7 +433,7 @@
                 type: "POST",
                 dataType: "json",
                 cache: false,
-                url: "{{ route('conductor.store_tip_dato') }}",
+                url: "{{ route('vehiculo.store_tip_dato') }}",
                 data: formData,
                 processData: false,
                 contentType: false,
@@ -898,58 +808,6 @@ $.ajax({
                                         <!--begin::Details item-->
                                     </div>
                                 </div>
-                                <!--end::Details content-->
-                                <!--begin::Details toggle-->
-                                <div class="d-flex flex-stack fs-4 py-3">
-                                    <div class="fw-bolder rotate collapsible" data-bs-toggle="collapse" href="#kt_conductor_view_details" role="button" aria-expanded="false" aria-controls="kt_conductor_view_details">Licencia de Conducir (BREVETE)
-                                    <span class="ms-2 rotate-180">
-                                        <!--begin::Svg Icon | path: icons/duotune/arrows/arr072.svg-->
-                                        <span class="svg-icon svg-icon-3">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                                                <path d="M11.4343 12.7344L7.25 8.55005C6.83579 8.13583 6.16421 8.13584 5.75 8.55005C5.33579 8.96426 5.33579 9.63583 5.75 10.05L11.2929 15.5929C11.6834 15.9835 12.3166 15.9835 12.7071 15.5929L18.25 10.05C18.6642 9.63584 18.6642 8.96426 18.25 8.55005C17.8358 8.13584 17.1642 8.13584 16.75 8.55005L12.5657 12.7344C12.2533 13.0468 11.7467 13.0468 11.4343 12.7344Z" fill="black"></path>
-                                            </svg>
-                                        </span>
-                                        <!--end::Svg Icon-->
-                                    </span></div>
-                                    <span data-bs-toggle="tooltip" data-bs-trigger="hover" title="" data-bs-original-title="Edit customer details">
-                                        <button type="button" class="btn btn-sm btn-light-primary" data-toggle="modal" data-target="#large-Modal"  onclick="btnEditConductor('{{ $conductor->idconductor }}')">Editar</button>
-                                    </span>
-                                </div>
-                                <!--end::Details toggle-->
-                                <!--begin::Details content-->
-                                <div id="kt_conductor_view_details" class="collapse show">
-                                    <div class="pb-5 fs-6" id="act_brevete">
-                                        <div id="porcentaje_b"></div>
-                                        @if (isset($conductor->n_brevete))
-                                    
-                                            <!--begin::Details item-->
-                                            <div class="fw-bolder mt-5">Tipo de Licencia</div>
-                                            <div class="text-gray-600">{{ $tipo_licencia->descripcion }}</div>
-                                            <!--begin::Details item-->
-                                            <!--begin::Details item-->
-                                            <div class="fw-bolder mt-5">Número de Licencia</div>
-                                            <div class="text-gray-600">
-                                                <a href="#" class="text-gray-600 text-hover-primary">{{ $conductor->n_brevete }}</a>
-                                            </div>
-                                            <!--begin::Details item-->
-                                            <!--begin::Details item-->
-                                            <div class="fw-bolder mt-5">Fecha de Expedición</div>
-                                            <div class="text-gray-600">{{ $conductor->fecha_expedicion_brevete }}</div>
-                                            <!--begin::Details item-->
-                                            <!--begin::Details item-->
-                                            <div class="fw-bolder mt-5">Fecha de Vencimiento</div>
-                                            <div class="text-gray-600">{{ $conductor->fecha_vencimiento_brevete }}</div>
-                                        <!--begin::Details item-->
-                                            
-                                        @else
-                                            <br />
-                                            <div><center class="text-danger">Falta actualizar datos</center></div>
-                                        @endif
-                                        
-                                    </div>
-                                    
-                                </div>
-                                
                                 <!--end::Details content-->
                             </div>
                             <!--end::Card body-->

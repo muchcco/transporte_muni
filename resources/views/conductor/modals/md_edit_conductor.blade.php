@@ -68,6 +68,13 @@
                             <label class="required fs-6 fw-bold mb-2">N° de licencia (BREVETE)</label>
                             <input type="text" class="form-control form-control-solid" id="n_brevete" name="n_brevete" value="{{ $conductor->n_brevete }}" >
                         </div>
+                        <div class="col-md-4 fv-row">
+                            <label class="required fs-6 fw-bold mb-2">Pagó derecho de empadronamiento?</label>
+                            <select class="form-select form-select-solid" name="pago_padron" id="pago_padron" >
+                                <option value="1" {{ $conductor->pago_padron == '1' ? 'selected' : '' }} >NO</option>
+                                <option value="2" {{ $conductor->pago_padron == '2' ? 'selected' : '' }}>SI</option>
+                            </select>
+                        </div>
                     </div>
                     <div class="row g-7 mb-6">
                         <div class="col-md-4 fv-row">
