@@ -48,7 +48,7 @@ class ConductorController extends Controller
 
     public function md_crea_conductor(Request $request)
     {
-        $departamentos = DB::table('ubigeo_peru_departments')->get();
+        $departamentos = DB::table('departament')->get();
 
         $tip_licencia = DB::table('db_clase_licencia')
                         ->join('db_categoria_licencia', 'db_categoria_licencia.idclase_licencia', '=', 'db_clase_licencia.idclase_licencia')

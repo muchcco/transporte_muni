@@ -8,6 +8,7 @@ use App\Http\Controllers\RecursosController;
 use App\Http\Controllers\Empresa\FlotaController;
 use App\Http\Controllers\ExternoController;
 use App\Http\Controllers\Registro\VehiculoController;
+use App\Http\Controllers\Asset\UsuarioController;
 
 Route::get('externo', [ExternoController::class, 'externo'])->name('externo');
 
@@ -90,6 +91,18 @@ Route::group(['middleware' => ['auth']], function () {
 
         Route::get('/padron_vehiculo_pdf/{idvehiculo}' , [VehiculoController::class, 'padron_vehiculo_pdf'])->name('padron_vehiculo_pdf'); // EXPORTA EN UN FORMATO PDF
 
+    });
+
+    Route::group(['prefix'=>'usuarios.html','as'=>'usuarios.' ],function () {
+        Route::get('/index' , [UsuarioController::class, 'index'])->name('index');
+        Route::get('/tablas/tb_index' , [UsuarioController::class, 'tb_index'])->name('tablas.tb_index');                
+        Route::post('/modals/md_add_usuario' , [UsuarioController::class, 'md_add_usuario'])->name('modals.md_add_usuario');
+        Route::post('/modals/md_edit_usuario' , [UsuarioController::class, 'md_edit_usuario'])->name('modals.md_edit_usuario');
+        Route::post('/modals/md_editpass_usuario' , [UsuarioController::class, 'md_editpass_usuario'])->name('modals.md_editpass_usuario');
+        Route::post('/store_usuario' , [UsuarioController::class, 'store_usuario'])->name('store_usuario');
+        Route::post('/update_usuario' , [UsuarioController::class, 'update_usuario'])->name('update_usuario');
+        Route::post('/update_password_usuario' , [UsuarioController::class, 'update_password_usuario'])->name('update_password_usuario');
+        Route::post('/delete_usuario' , [UsuarioController::class, 'delete_usuario'])->name('delete_usuario');
     });
 
 
