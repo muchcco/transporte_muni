@@ -113,7 +113,90 @@ var btnStoreFlota = () => {
 
 }
 
+var mdBajaFlota = (idflota) => {
 
+    $.ajax({
+        type:'post',
+        url: "{{ route('empresa.flota.modals.baja_flota') }}",
+        dataType: "json",
+        data:{"_token": "{{ csrf_token() }}", idflota : idflota},
+        success:function(data){
+            $("#modal_ver_em").html(data.html);
+            $("#modal_ver_em").modal('show');
+        }
+    });
+
+}
+
+var btnBajaFlotaAccion = (idflota) =>{
+        console.log(idflota)
+        if ($('#ruta_sustento').val() == null  || $('#ruta_sustento').val() == "" ) {
+            $('#ruta_sustento').addClass("hasError");
+        }else {
+            $('#ruta_sustento').removeClass("hasError");
+        }
+
+        if ($('#sustento').val() == null  || $('#sustento').val() == "" ) {
+            $('#sustento').addClass("hasError");
+        }else {
+            $('#sustento').removeClass("hasError");
+        }
+
+        var formData = new FormData();
+        var file_data = $("#ruta_sustento").prop("files")[0];
+        formData.append("ruta_sustento", file_data);
+        formData.append("idflota", idflota);
+        formData.append("sustento", $("#sustento").val());
+        formData.append("_token", $("#_token").val());
+
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            url: "{{ route('empresa.flota.store_baja') }}",
+            data: formData,
+            cache: false,
+            processData: false,
+            contentType: false,
+            beforeSend: function () {
+                document.getElementById("btnEnviarForm").innerHTML = '<i class="fa fa-spinner fa-spin"></i> Cargando...';
+                document.getElementById("btnEnviarForm").disabled = true;
+            },
+            success: function(response){
+                console.log(response)
+                tabla_seccion();
+                $("#modal_ver_em").modal('hide');
+
+                toastr.options = {
+                    "closeButton": false,
+                    "debug": false,
+                    "newestOnTop": false,
+                    "progressBar": false,
+                    "positionClass": "toast-bottom-right",
+                    "preventDuplicates": false,
+                    "onclick": null,
+                    "showDuration": "300",
+                    "hideDuration": "1000",
+                    "timeOut": "5000",
+                    "extendedTimeOut": "1000",
+                    "showEasing": "swing",
+                    "hideEasing": "linear",
+                    "showMethod": "fadeIn",
+                    "hideMethod": "fadeOut"
+                };
+
+                toastr.success("A buena hora. Se dió de baja el registro... Ahora puedes sustituir una nueva flota.", "Se dio de baja!");
+
+                
+            },
+            error: function(jqxhr,textStatus,errorThrown){
+                console.log(jqxhr.responseJSON.error);
+                console.log(textStatus);
+                console.log(errorThrown);
+            }
+        });
+
+
+    }
 </script>
     
 @endsection

@@ -37,159 +37,6 @@ var btnEditPersona = (idconductor) => {
     });
 }
 
-var btnUpdateConductor = (idpersona) => {
-
-    if ($('#tipo_documento').val() == null  || $('#tipo_documento').val() == "0" ) {
-        $('#tipo_documento').addClass("hasError");
-    }else {
-        $('#tipo_documento').removeClass("hasError");
-    }
-    if ($('#dni').val() == null  || $('#dni').val() == "" ) {
-        $('#dni').addClass("hasError");
-    }else {
-        $('#dni').removeClass("hasError");
-    }
-    if ($('#nombre').val() == null  || $('#nombre').val() == "" ) {
-        $('#nombre').addClass("hasError");
-    }else {
-        $('#nombre').removeClass("hasError");
-    }
-    if ($('#ape_pat').val() == null  || $('#ape_pat').val() == "" ) {
-        $('#ape_pat').addClass("hasError");
-    }else {
-        $('#ape_pat').removeClass("hasError");
-    }
-    if ($('#ape_mat').val() == null  || $('#ape_mat').val() == "" ) {
-        $('#ape_mat').addClass("hasError");
-    }else {
-        $('#ape_mat').removeClass("hasError");
-    }
-    if ($('#direccion').val() == null  || $('#direccion').val() == "" ) {
-        $('#direccion').addClass("hasError");
-    }else {
-        $('#direccion').removeClass("hasError");
-    }
-    if ($('#dir_referencia').val() == null  || $('#dir_referencia').val() == "" ) {
-        $('#dir_referencia').addClass("hasError");
-    }else {
-        $('#dir_referencia').removeClass("hasError");
-    }
-    if ($('#celular').val() == null  || $('#celular').val() == "" ) {
-        $('#celular').addClass("hasError");
-    }else {
-        $('#celular').removeClass("hasError");
-    }
-    if ($('#departamento').val() == null  || $('#departamento').val() == "" ) {
-        $('#departamento').addClass("hasError");
-    }else {
-        $('#departamento').removeClass("hasError");
-    }
-    if ($('#provincia').val() == null  || $('#provincia').val() == "" ) {
-        $('#provincia').addClass("hasError");
-    }else {
-        $('#provincia').removeClass("hasError");
-    }
-    if ($('#distrito').val() == null  || $('#distrito').val() == "" ) {
-        $('#distrito').addClass("hasError");
-    }else {
-        $('#distrito').removeClass("hasError");
-    }
-    if ($('#correo').val() == null  || $('#correo').val() == "" ) {
-        $('#correo').addClass("hasError");
-    }else {
-        $('#correo').removeClass("hasError");
-    }
-
-    var formData = new FormData();
-    formData.append("idpersona", idpersona);
-    formData.append("tipo_documento", $("#tipo_documento").val());
-    formData.append("dni", $("#dni").val());
-    formData.append("ruc", $("#ruc").val());
-    formData.append("nombre", $("#nombre").val());
-    formData.append("ape_pat", $("#ape_pat").val());
-    formData.append("ape_mat", $("#ape_mat").val());
-    formData.append("sexo", $("#sexo").val());
-    formData.append("direccion", $("#direccion").val());
-    formData.append("correo", $("#correo").val());
-    formData.append("distrito", $("#distrito").val());
-    formData.append("dir_referencia", $("#dir_referencia").val());
-    formData.append("celular", $("#celular").val());
-    formData.append("_token", $("#_token").val());
-
-    // Selector para mostrar el porcentaje
-    var porcentajeElemento = $('#porcentaje');
-
-    $.ajax({
-        type: "POST",
-        dataType: "json",
-        cache: false,
-        url: "{{ route('conductor.update_conductor') }}",
-        data: formData,
-        processData: false,
-        contentType: false,
-        beforeSend: function () {
-            document.getElementById("btnEnviarForm").innerHTML = '<i class="fa fa-spinner fa-spin"></i> Cargando datos...';
-            document.getElementById("btnEnviarForm").disabled = true;
-        },
-        xhr: function() {
-            var xhr = new window.XMLHttpRequest();
-            xhr.upload.addEventListener('progress', function(e) {
-                if (e.lengthComputable) {
-                    // Calcula el porcentaje de progreso y actualiza el elemento
-                    var porcentaje = (e.loaded / e.total) * 100;
-                    porcentajeElemento.text(porcentaje.toFixed(2) + '%');
-                }
-            }, false);
-            return xhr;
-        },
-        success: function(result){            
-            
-            if(!(result.error)){
-                $( "#act_persona" ).load(window.location.href + " #act_persona" ); 
-                $("#modal_add_em").modal('hide');
-
-                toastr.options = {
-                    "closeButton": false,
-                    "debug": false,
-                    "newestOnTop": false,
-                    "progressBar": false,
-                    "positionClass": "toast-bottom-right",
-                    "preventDuplicates": false,
-                    "onclick": null,
-                    "showDuration": "300",
-                    "hideDuration": "1000",
-                    "timeOut": "5000",
-                    "extendedTimeOut": "1000",
-                    "showEasing": "swing",
-                    "hideEasing": "linear",
-                    "showMethod": "fadeIn",
-                    "hideMethod": "fadeOut"
-                };
-
-                toastr.success("El conductor se guardo con exito!", "Guardado:");
-            }else{
-                $( "#act_persona" ).load(window.location.href + " #act_persona" ); ;
-                $("#modal_add_em").modal('hide');
-
-                Swal.fire(
-                    'Error!',
-                    'El conductor ya fue registrado!',
-                    'error'
-                )
-            }
-        },
-        error: function(jqxhr,textStatus,errorThrown){
-            console.log(jqxhr.responseJSON.error);
-            console.log(textStatus);
-            console.log(errorThrown);          
-            
-            document.getElementById("btnEnviarForm").innerHTML = 'ENVIAR';
-            document.getElementById("btnEnviarForm").disabled = false;
-        }
-    });
-}
-
-
 var btnEditVehiculo = (idvehiculo, idpersona) =>{
 
     console.log(idvehiculo);
@@ -222,6 +69,9 @@ var btnUpdateVehiculo = (idvehiculo) => {
     formData.append("n_asientos", $("#n_asientos").val());
     formData.append("motor", $("#motor").val());
     formData.append("carroceria", $("#carroceria").val());
+    formData.append("n_recibo", $("#n_recibo").val());
+    formData.append("fecha_recibo", $("#fecha_recibo").val());
+    formData.append("monto_recibo", $("#monto_recibo").val());
     formData.append("_token", $("#_token").val());
 
     // Selector para mostrar el porcentaje
@@ -279,7 +129,7 @@ var btnUpdateVehiculo = (idvehiculo) => {
                     "hideMethod": "fadeOut"
                 };
 
-                toastr.info("El conductor se guardo con exito!", "Guardado:");
+                toastr.info("El vehículo se actualizo con exito!", "Guardado:");
         },
         error: function(jqxhr,textStatus,errorThrown){
             console.log(jqxhr.responseJSON.error);
@@ -420,7 +270,7 @@ var btnDeleteArchivo = (idvehiculo_archivo) => {
     }).then((result) => {
         if (result.value) {
             $.ajax({
-                url: "{{ route('conductor.delete_tip_dato') }}",
+                url: "{{ route('vehiculo.delete_tip_dato') }}",
                 type: 'post',
                 data: {"_token": "{{ csrf_token() }}", idvehiculo_archivo: idvehiculo_archivo},
                 success: function(response){
@@ -674,13 +524,13 @@ var btnDeleteArchivo = (idvehiculo_archivo) => {
                                             </tr>
                                             <tr>
                                                 <th>MARCA:</th>
-                                                <th>{{ $marca_v->name_marca }}</th>
+                                                <th>{{ isset($marca_v->name_marca) ? ' - ' : ' Actualizar '}}</th>
                                                 <th>AÑO DE FABRICACION:</th>
                                                 <th>{{ $vehiculo->año_fabricacion }}</th>
                                             </tr>
                                             <tr>
                                                 <th>MODELO:</th>
-                                                <th>{{ $marca_v->name_modelo }}</th>
+                                                <th>{{ isset($marca_v->name_modelo) ? ' - ' : ' Actualizar '}}</th>
                                                 <th>ASIENTOS:</th>
                                                 <th>{{ $vehiculo->n_asientos }}</th>
                                             </tr>

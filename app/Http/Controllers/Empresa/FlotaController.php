@@ -26,7 +26,7 @@ class FlotaController extends Controller
 
         //creamos el porcentaje
 
-        $porcentaje = ($total_flota / 100) * $empresa->n_flota;
+        $porcentaje =   (100*$total_flota) / $empresa->n_flota;
 
         // dd($porcentaje);
 
@@ -35,13 +35,13 @@ class FlotaController extends Controller
 
     public function tb_index(Request $request)
     {
-        $flota = Flota::leftJoin('db_vehiculo as v', 'v.idvehiculo', '=', 'db_emp_flota.idvehiculo')
-                                ->leftJoin(DB::raw('(SELECT CONCAT(db_persona.apellido_pat, " ", db_persona.apellido_mat, ", ", db_persona.nombre) AS nom_persona, db_persona.idpersona, db_conductor.n_brevete
-                                    FROM db_conductor
-                                    JOIN db_persona ON db_persona.idpersona = db_conductor.idpersona
-                                ) AS c'), 'c.idpersona', '=', 'db_emp_flota.idpersona')
-                                ->select('db_emp_flota.idflota', 'c.nom_persona', 'c.n_brevete', 'v.n_placa', 'v.año_fabricacion', 'db_emp_flota.tipologia', 'db_emp_flota.correlativo')
-                                ->get();
+        $flota = DB::table('db_emp_flota as mp')
+                        ->select('mp.correlativo', DB::raw("CONCAT(p.apellido_pat, ' ', p.apellido_mat, ', ', p.nombre) as nombreu"), 'v.n_placa', 'v.año_fabricacion', 'mp.tipologia', 'mp.idflota')
+                        ->leftJoin('db_persona as p', 'p.idpersona', '=', 'mp.idpersona')
+                        ->leftJoin('db_vehiculo as v', 'v.idvehiculo', '=', 'mp.idvehiculo')
+                        ->where('mp.flag', '1')
+                        ->where('mp.idempresa', $request->idempresa)
+                        ->get();
 
         return view('empresa.flota.tablas.tb_index', compact('flota'));
     }
@@ -64,16 +64,6 @@ class FlotaController extends Controller
     {
         $n_corr = Flota::where('idempresa', $request->idempresa)->orderBy('correlativo', 'DESC')->first();
 
-        $conduc_padron = DB::table('db_conductor')->orderby('idconductor', 'DESC')->first();
-
-        if(isset($conduc_padron->n_padron)){
-            $cont_ = $conduc_padron->n_padron + 1;
-            // dd($cont_);
-            $codpadron = Str::padLeft($cont_, 5, '0');
-        }else{
-            $codpadron = '00001';
-        }
-
         if($n_corr == 'NULL' || !$n_corr ){
             $correl = 1;       
         }else{            
@@ -82,19 +72,7 @@ class FlotaController extends Controller
 
         $persona = Persona::where('dni', $request->dni)->first();
 
-        if(isset($persona)){
-            $idpersona = $persona->idpersona;
-
-            $vehiculo = Vehiculo::where('idpersona', $persona->idpersona)->first();
-
-            if(isset($vehiculo)){
-                $idvehiculo = $vehiculo->idvehiculo;
-            }else{
-                // return "asda";
-                $idvehiculo = NULL;
-            }
-
-        }else{
+        if(!isset($persona)){
             $persona = new Persona;
             $persona->dni = $request->dni;
             $persona->nombre = $request->nombre;
@@ -108,22 +86,12 @@ class FlotaController extends Controller
             $persona->celular = $request->celular;
             $persona->ref_direccion = $request->dir_referencia;
             $persona->save();
-
-            $conductor = new Conductor;
-            $conductor->idpersona = $persona->idpersona;
-            $conductor->n_padron = $codpadron;
-            $conductor->mes = Carbon::now()->format('m');
-            $conductor->año = Carbon::now()->format('Y');
-            $conductor->save();
-
-
-            $idvehiculo = NULL;
         }
 
         $flota =  new Flota;
         $flota->idempresa = $request->idempresa;
         $flota->idpersona = $persona->idpersona;
-        $flota->idvehiculo = $idvehiculo;
+        // $flota->idvehiculo = $idvehiculo;
         $flota->flag = 1;
         $flota->correlativo = $correl;
         $flota->save();
@@ -134,22 +102,20 @@ class FlotaController extends Controller
     public function flota_vista(Request $request, $idflota)
     {
 
-        $flota_conductor= Flota::leftJoin('db_persona', 'db_persona.idpersona', '=', 'db_emp_flota.idpersona')->where('db_emp_flota.idflota', $idflota)->first();
+        $flota_persona= Flota::leftJoin('db_persona', 'db_persona.idpersona', '=', 'db_emp_flota.idpersona')->where('db_emp_flota.idflota', $idflota)->first();
 
         $flota_empresa = Empresa::leftJoin('db_emp_flota', 'db_emp_flota.idempresa', '=', 'db_empresa.idempresa')->where('db_emp_flota.idflota', $idflota)->first();
 
-        //  dd($flota_empresa);
+        // dd($flota_persona);
         $idempresa = $flota_empresa->idempresa;
 
-        if($flota_empresa->idpersona !== null && $flota_empresa->idvehiculo !== null){
-            $conductor = Persona::leftJoin('db_conductor', 'db_conductor.idpersona', '=', 'db_persona.idpersona')->where('db_persona.idpersona', $flota_conductor->idpersona)->first();
+        $persona = Persona::where('idpersona',  $flota_persona->idpersona)->first();
+        
 
-            $tipo_licencia = DB::table('db_clase_licencia')->join('db_categoria_licencia', 'db_categoria_licencia.idclase_licencia', '=', 'db_clase_licencia.idclase_licencia')
-                                        ->where('db_categoria_licencia.idcategoria_licencia', $conductor->idcategoria_licencia)
-                                        ->select('db_categoria_licencia.descripcion')
-                                        ->first();
-    
-            $vehiculo = Vehiculo::join('db_persona', 'db_persona.idpersona', '=', 'db_vehiculo.idpersona')->where('db_persona.idpersona', $conductor->idpersona)->first();
+        if($flota_empresa->idpersona !== null && $flota_empresa->idvehiculo !== null){
+                
+            $vehiculo = Vehiculo::join('db_persona', 'db_persona.idpersona', '=', 'db_vehiculo.idpersona')->where('db_vehiculo.idvehiculo', $flota_persona->idvehiculo)->first();
+            // dd($vehiculo);
     
             if(isset($vehiculo)){
     
@@ -166,19 +132,12 @@ class FlotaController extends Controller
                 $archivos = NULL;
             }
         }elseif($flota_empresa->idpersona !== null){
-            $conductor = Persona::leftJoin('db_conductor', 'db_conductor.idpersona', '=', 'db_persona.idpersona')->where('db_persona.idpersona', $flota_conductor->idpersona)->first();
-
-            $tipo_licencia = DB::table('db_clase_licencia')->join('db_categoria_licencia', 'db_categoria_licencia.idclase_licencia', '=', 'db_clase_licencia.idclase_licencia')
-                                        ->where('db_categoria_licencia.idcategoria_licencia', $conductor->idcategoria_licencia)
-                                        ->select('db_categoria_licencia.descripcion')
-                                        ->first();
+                       
 
             $vehiculo = '';
             $marca_v = '';
             $archivos = NULL;
         }else{
-            $conductor = '';
-            $tipo_licencia = '';
             $vehiculo = '';
             $marca_v = '';
             $archivos = NULL;
@@ -188,7 +147,7 @@ class FlotaController extends Controller
 
         $tipo_dato = DB::table('db_vehiculo_tipo_dato')->get();
 
-        return view('empresa.flota.flota_vista', compact( 'idempresa', 'flota_empresa', 'flota_conductor', 'conductor', 'vehiculo', 'tipo_licencia', 'marca_v', 'tipo_dato', 'archivos'));
+        return view('empresa.flota.flota_vista', compact( 'idempresa', 'flota_empresa', 'flota_persona',  'vehiculo',  'marca_v', 'tipo_dato', 'archivos', 'persona'));
     }
 
     public function baja_flota(Request $request)
@@ -286,19 +245,7 @@ class FlotaController extends Controller
 
         $persona = Persona::where('dni', $request->dni)->first();
 
-        if(isset($persona)){
-            $idpersona = $persona->idpersona;
-
-            $vehiculo = Vehiculo::where('idpersona', $persona->idpersona)->first();
-
-            if(isset($vehiculo)){
-                $idvehiculo = $vehiculo->idvehiculo;
-            }else{
-                // return "asda";
-                $idvehiculo = NULL;
-            }
-
-        }else{
+        if(!isset($persona)){
             $persona = new Persona;
             $persona->dni = $request->dni;
             $persona->nombre = $request->nombre;
@@ -312,26 +259,145 @@ class FlotaController extends Controller
             $persona->celular = $request->celular;
             $persona->ref_direccion = $request->dir_referencia;
             $persona->save();
-
-            $conductor = new Conductor;
-            $conductor->idpersona = $persona->idpersona;
-            $conductor->n_padron = $codpadron;
-            $conductor->mes = Carbon::now()->format('m');
-            $conductor->año = Carbon::now()->format('Y');
-            $conductor->save();
-
-
-            $idvehiculo = NULL;
         }
 
         $flota = Flota::findOrFail($request->idflota);
         $flota->idpersona = $persona->idpersona;
-        $flota->idvehiculo = $idvehiculo;
+        // $flota->idvehiculo = $idvehiculo;
         $flota->flag = 1;
         $flota->save();
 
         return $flota;
     }
 
+    /***************************************************************************************************************************** */
+
+    public function md_vehiculo(Request $request)
+    {
+        $persona = Persona::where('idpersona', $request->idpersona)->first();
+
+        $tipo_v = DB::table('db_vehiculo_tipo')->get();
+
+        $view = view('empresa.flota.modals.md_vehiculo', compact('persona', 'tipo_v'))->render();
+
+        return response()->json(['html' => $view]);
+    }
+
+    public function btnEditVehiculo(Request $request)
+    {
+        $persona = Persona::where('idpersona', $request->idpersona)->first();
+
+        $vehiculo = Vehiculo::where('idvehiculo', $request->idvehiculo)->first();
+
+        $tipo_v = DB::table('db_vehiculo_tipo')->get();
+
+        $tipo_select = DB::table('db_vehiculo_tipo as t')->join('db_vehiculo_subtipo as s', 's.id_tipo_vehiculo', '=', 't.idtipo_vehiculo')
+                                ->select('t.idtipo_vehiculo', 't.min_nombre as name_marca', 's.min_nombre as name_modelo', 's.idsubtipo_vehiculo')
+                                ->where('s.idsubtipo_vehiculo', $vehiculo->idmodelo)
+                                ->first();
+
+
+        $view = view('empresa.flota.modals.btnEditVehiculo', compact('persona', 'tipo_v', 'vehiculo', 'tipo_select'))->render();
+
+        return response()->json(['html' => $view]);
+    }
+
+    public function store_vehiculo(Request $request)
+    {
+        try{
+            // DB::beginTransaction();
+            $persona_id = Persona::where('idpersona', $request->idpersona)->first();           
+
+            // $vehiculo_padron = DB::table('db_vehiculo')->orderby('idvehiculo', 'DESC')->first();
+
+            // if(isset($vehiculo_padron->n_padron)){
+            //     $cont_ = $vehiculo_padron->n_padron + 1;
+            //     // dd($cont_);
+            //     $codpadron = Str::padLeft($cont_, 8, '0');
+            // }else{
+            //     $codpadron = '00000001';
+            // }
+            
+            $vehiculo = Vehiculo::where('n_placa', $request->n_placa)->first();
+
+            if(isset($vehiculo)){
+                $save = Vehiculo::findOrFail($vehiculo->idvehiculo);
+                $save->cat_clase = $request->categoria;
+                $save->idmodelo = $request->subtipo;
+                $save->n_placa = $request->n_placa;
+                $save->tipologia = $request->tipologia;
+                $save->pago_padron = $request->pago_padron;
+                $save->combustible = $request->combustible;
+                $save->serie = $request->serie;
+                $save->color = $request->color;
+                $save->año_fabricacion = $request->año_fabricacion;
+                $save->n_asientos = $request->n_asientos;
+                $save->motor = $request->motor;
+                $save->carroceria = $request->carroceria;
+                $save->save();
+            }else{
+                $save = new Vehiculo;
+                $save->idpersona = $request->idpersona;
+                $save->cat_clase = $request->categoria;
+                $save->idmodelo = $request->subtipo;
+                $save->n_placa = $request->n_placa;
+                $save->tipologia = $request->tipologia;
+                $save->pago_padron = $request->pago_padron;
+                $save->combustible = $request->combustible;
+                $save->serie = $request->serie;
+                $save->color = $request->color;
+                $save->año_fabricacion = $request->año_fabricacion;
+                $save->n_asientos = $request->n_asientos;
+                $save->motor = $request->motor;
+                $save->carroceria = $request->carroceria;
+                $save->mes = Carbon::now()->format('m');
+                $save->año = Carbon::now()->format('Y');
+                $save->save();
+
+                $dat = DB::table('db_vehiculo_responsable')->insert([
+                            'id_vehiculo' =>    $save->idvehiculo,
+                            'id_persona'  =>    $request->idpersona,
+                ]);
+            }
+
+            
+
+            return $save;
+            
+            // DB::commit();
+    
+
+        }catch (\Exception $e) {
+           // DB::rollback(); //Anular los cambios en la DB
+            //Si existe algún error en la Transacción
+            $response_ = response()->json([
+                'data' => null,
+                'error' => $e->getMessage(),
+                'message' => 'BAD'
+            ], 400);
+
+            return $response_;
+        }
+    }
+
+    public  function update_vehiculo(Request $request)
+    {
+        $idvehiculo = $request->idvehiculo;
+
+        $update = Vehiculo::findOrFail($idvehiculo);
+        $update->cat_clase = $request->categoria;        
+        $update->idmodelo = $request->subtipo;
+        $update->n_placa = $request->n_placa;
+        $update->combustible = $request->combustible;
+        $update->serie = $request->serie;
+        $update->color = $request->color;
+        $update->año_fabricacion = $request->año_fabricacion;
+        $update->n_asientos = $request->n_asientos;
+        $update->motor = $request->motor;
+        $update->carroceria = $request->carroceria;
+        $update->save();
+
+        return $update;
+    }
     
 }

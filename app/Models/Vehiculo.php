@@ -28,6 +28,9 @@ class Vehiculo extends Model
                             'mes',
                             'tipologia',
                             'año',
+                            'n_recibo',
+                            'monto_recibo',
+                            'fecha_recibo',
                             'n_padron',
                             'pago_padron',
                             'flag'    

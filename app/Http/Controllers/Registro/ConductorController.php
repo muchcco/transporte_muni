@@ -23,32 +23,23 @@ class ConductorController extends Controller
 
     public function tb_index(Request $request)
     {
-        $tip_licencia = DB::table('db_clase_licencia')
-                                ->join('db_categoria_licencia', 'db_categoria_licencia.idclase_licencia', '=', 'db_clase_licencia.idclase_licencia')
-                                ->select('db_categoria_licencia.idcategoria_licencia', DB::raw("CONCAT(db_clase_licencia.descripcion, ' ', db_categoria_licencia.descripcion) AS descr_licencia"));
+        // $tip_licencia = DB::table('db_clase_licencia')
+        //                         ->join('db_categoria_licencia', 'db_categoria_licencia.idclase_licencia', '=', 'db_clase_licencia.idclase_licencia')
+        //                         ->select('db_categoria_licencia.idcategoria_licencia', DB::raw("CONCAT(db_clase_licencia.descripcion, ' ', db_categoria_licencia.descripcion) AS descr_licencia"));
 
-        $data = DB::table('db_conductor as c')
-                        ->join('db_persona as p', 'p.idpersona', '=', 'c.idpersona')
-                        ->leftJoin(DB::raw('(SELECT db_vehiculo.idvehiculo, db_vehiculo.idpersona, COUNT(*) AS vehiculos_count
-                            FROM db_vehiculo
-                            JOIN db_persona ON db_persona.idpersona = db_vehiculo.idpersona
-                            GROUP BY db_vehiculo.idvehiculo, db_vehiculo.idpersona) AS v'), 'v.idpersona', '=', 'c.idpersona')
-                        ->leftJoin(DB::raw('(SELECT idflota, idpersona, COUNT(*) AS count_emp
-                            FROM db_emp_flota
-                            GROUP BY idflota, idpersona) AS f'), 'f.idpersona', '=', 'c.idpersona')
-                        ->leftJoinSub($tip_licencia, 'h', function($join) {
-                                $join->on('h.idcategoria_licencia', '=', 'c.idcategoria_licencia');
-                            })
-                        ->select('c.*', 'p.*', DB::raw('IFNULL(v.vehiculos_count, 0) AS vehiculos_count'), DB::raw('IFNULL(f.count_emp, 0) AS count_emp'), 'h.descr_licencia')
-                        ->get();
-                            //dd($data);
+        $data =  Conductor::select('db_conductor.n_padron', 'db_persona.nombre', 'db_persona.apellido_pat', 'db_persona.apellido_mat', 'db_persona.dni', 'db_categoria_licencia.desc_corta', 'db_conductor.n_brevete', 'db_conductor.idconductor')
+                    ->leftJoin('db_persona', 'db_persona.idpersona', '=', 'db_conductor.idpersona')
+                    ->leftJoin('db_categoria_licencia', 'db_categoria_licencia.idcategoria_licencia', '=', 'db_conductor.idcategoria_licencia')
+                    ->where('db_conductor.flag', '1')
+                    ->get();
+    
 
         return view('conductor.tablas.tb_index', compact('data'));
     }
 
     public function md_crea_conductor(Request $request)
     {
-        $departamentos = DB::table('departament')->get();
+        $departamentos = DB::table('ubigeo_peru_departments')->get();
 
         $tip_licencia = DB::table('db_clase_licencia')
                         ->join('db_categoria_licencia', 'db_categoria_licencia.idclase_licencia', '=', 'db_clase_licencia.idclase_licencia')
@@ -67,7 +58,45 @@ class ConductorController extends Controller
 
             $search = Persona::where('dni', $request->dni)->first();
 
-            $conductor = Conductor::where('idpersona', $search->idpersona)->first();
+            if(!isset($search)){
+                $persona = new Persona;
+                $persona->dni = $request->dni;
+                $persona->nombre = $request->nombre;
+                $persona->apellido_pat = $request->ape_pat;
+                $persona->apellido_mat = $request->ape_mat;
+                $persona->sexo = $request->sexo;
+                $persona->direccion = $request->direccion;
+                $persona->tipo_documento = $request->tipo_documento;
+                $persona->correo = $request->correo;
+                $persona->iddistrito = $request->distrito;
+                $persona->celular = $request->celular;
+                $persona->ref_direccion = $request->dir_referencia;
+                $persona->save(); 
+
+                // dd($persona);
+                
+                $conduc_padron = DB::table('db_conductor')->orderby('idconductor', 'DESC')->first();
+
+                if(isset($conduc_padron->n_padron)){
+                    $cont_ = $conduc_padron->n_padron + 1;
+                    // dd($cont_);
+                    $codpadron = Str::padLeft($cont_, 8, '0');
+                }else{
+                    $codpadron = '00000001';
+                }
+
+
+                $save = new Conductor;
+                $save->idpersona = $persona->idpersona;
+                $save->n_padron = $codpadron;
+                $save->mes = Carbon::now()->format('m');
+                $save->año = Carbon::now()->format('Y');
+                $save->save();
+
+                return $save;
+            }else{
+                $conductor = Conductor::where('idpersona', $search->idpersona)->first();
+            }            
 
             // dd($conductor);
 
@@ -95,46 +124,7 @@ class ConductorController extends Controller
                     return $save;
     
     
-                }else{
-                    
-                    $persona = new Persona;
-                    $persona->dni = $request->dni;
-                    $persona->nombre = $request->nombre;
-                    $persona->apellido_pat = $request->ape_pat;
-                    $persona->apellido_mat = $request->ape_mat;
-                    $persona->sexo = $request->sexo;
-                    $persona->direccion = $request->direccion;
-                    $persona->tipo_documento = $request->tipo_documento;
-                    $persona->correo = $request->correo;
-                    $persona->iddistrito = $request->distrito;
-                    $persona->celular = $request->celular;
-                    $persona->ref_direccion = $request->dir_referencia;
-                    $persona->save(); 
-
-                    dd($persona);
-                    
-                    $conduc_padron = DB::table('db_conductor')->orderby('idconductor', 'DESC')->first();
-    
-                    if(isset($conduc_padron->n_padron)){
-                        $cont_ = $conduc_padron->n_padron + 1;
-                        // dd($cont_);
-                        $codpadron = Str::padLeft($cont_, 8, '0');
-                    }else{
-                        $codpadron = '00000001';
-                    }
-    
-    
-                    $save = new Conductor;
-                    $save->idpersona = $persona->idpersona;
-                    $save->n_padron = $codpadron;
-                    $save->mes = Carbon::now()->format('m');
-                    $save->año = Carbon::now()->format('Y');
-                    $save->save();
-    
-                    return $save;
-    
-                    // DB::commit();
-                }           
+                }        
             }else{
                 $response_ = response()->json([
                     'data' => null,
@@ -202,7 +192,8 @@ class ConductorController extends Controller
     }
 
     public function update_conductor(Request $request)
-    {
+    {   
+
         $idpersona = $request->idpersona;
 
         $persona = Persona::findOrFail($idpersona);
@@ -216,7 +207,7 @@ class ConductorController extends Controller
         $persona->correo = $request->correo;
         $persona->iddistrito = $request->distrito;
         $persona->celular = $request->celular;
-        $persona->ref_direccion = $request->dir_referencia;
+        $persona->ref_direccion = $request->dir_referencia;        
         $persona->save();
 
         return $persona;
@@ -237,67 +228,39 @@ class ConductorController extends Controller
 
     public function update_conductor_princ(Request $request)
     {
+        $estructura_carp = 'img\\fotoconductor\\';           
+
+        if (!file_exists($estructura_carp)) {
+            mkdir($estructura_carp, 0777, true);
+        }
+
+
+        // dd($request->all());
         $update = Conductor::findOrFail($request->idconductor);
         $update->idcategoria_licencia = $request->idcategoria_licencia;
         $update->pago_padron = $request->pago_padron;
         $update->n_brevete = $request->n_brevete;
+        $update->n_recibo = $request->n_recibo;
+        $update->fecha_recibo = $request->fecha_recibo;
+        $update->monto_recibo = $request->monto_recibo;
         $update->fecha_expedicion_brevete = $request->fecha_expedicion_brevete;
         $update->fecha_vencimiento_brevete = $request->fecha_vencimiento_brevete;
+        if($request->hasFile('foto_conductor'))
+        {
+            $foto_conductor = $request->file('foto_conductor');
+            $nombreFOTO = $foto_conductor->getClientOriginalName();
+            // $nameruta = '/img/fotoconductor/'; // RUTA DONDE SE VA ALMACENAR EL DOCUMENTO PDF
+            $nameruta = $estructura_carp;  // GUARDAR EN UN SERVIDOR
+            $foto_conductor->move($nameruta, $nombreFOTO);
+
+            $update->foto_conductor = $nombreFOTO;
+        }
         $update->save();
         
 
         return $update;
     }
 
-    public function md_vehiculo(Request $request)
-    {
-        $persona = Persona::where('idpersona', $request->idpersona)->first();
-
-        $tipo_v = DB::table('db_vehiculo_tipo')->get();
-
-        $view = view('conductor.modals.md_vehiculo', compact('persona', 'tipo_v'))->render();
-
-        return response()->json(['html' => $view]);
-    }
-
-    public function md_vehiculo_edit(Request $request)
-    {
-        $persona = Persona::where('idpersona', $request->idpersona)->first();
-
-        $vehiculo = Vehiculo::where('idvehiculo', $request->idvehiculo)->first();
-
-        $tipo_v = DB::table('db_vehiculo_tipo')->get();
-
-        $tipo_select = DB::table('db_vehiculo_tipo as t')->join('db_vehiculo_subtipo as s', 's.id_tipo_vehiculo', '=', 't.idtipo_vehiculo')
-                                ->select('t.idtipo_vehiculo', 't.min_nombre as name_marca', 's.min_nombre as name_modelo', 's.idsubtipo_vehiculo')
-                                ->where('s.idsubtipo_vehiculo', $vehiculo->idmodelo)
-                                ->first();
-
-
-        $view = view('conductor.modals.md_vehiculo_edit', compact('persona', 'tipo_v', 'vehiculo', 'tipo_select'))->render();
-
-        return response()->json(['html' => $view]);
-    }
-
-    public function update_vehiculo(Request $request)
-    {
-        $idvehiculo = $request->idvehiculo;
-
-        $update = Vehiculo::findOrFail($idvehiculo);
-        $update->cat_clase = $request->categoria;        
-        $update->idmodelo = $request->subtipo;
-        $update->n_placa = $request->n_placa;
-        $update->combustible = $request->combustible;
-        $update->serie = $request->serie;
-        $update->color = $request->color;
-        $update->año_fabricacion = $request->año_fabricacion;
-        $update->n_asientos = $request->n_asientos;
-        $update->motor = $request->motor;
-        $update->carroceria = $request->carroceria;
-        $update->save();
-
-        return $update;
-    }
 
     public function store_tip_dato(Request $request)
     {
@@ -339,8 +302,14 @@ class ConductorController extends Controller
     }
 
     public function delete_tip_dato(Request $request)
-    {
-        $delete = Archivoconductor::where('idconductor_archivo', $request->idconductor_archivo)->delete();
+    {        
+        $id_archivo = Archivoconductor::where('idconductor_archivo', $request->idvehiculo_archivo)->first();
+
+        if(file_exists( $id_archivo->ruta)){
+            unlink($id_archivo->ruta);
+        }
+
+        $delete = Archivoconductor::where('idconductor_archivo', $request->idvehiculo_archivo)->delete();       
 
         return $delete;
     }
@@ -365,5 +334,23 @@ class ConductorController extends Controller
 
         $pdf = Pdf::loadView('conductor.padron_conductor_pdf', compact('conductor', 'persona', 'dep_persona', 'tipo_licencia'))->setPaper('a4');
         return $pdf->stream();
+    }
+
+    public function añadir_foto(Request $request)
+    {
+        $update = Conductor::findOrFail($request->idconductor);
+        if($request->hasFile('foto_conductor'))
+        {
+            $foto_conductor = $request->file('foto_conductor');
+            $nombreFOTO = $foto_conductor->getClientOriginalName();
+            $nameruta = '/img/fotoconductor/'; // RUTA DONDE SE VA ALMACENAR EL DOCUMENTO PDF
+            // $namerutaDNI = $estructura_carp;  // GUARDAR EN UN SERVIDOR
+            $foto_conductor->move($nameruta, $nombreFOTO);
+
+            $update->foto_conductor = $foto_conductor.'\\'.$foto_conductor;
+        }
+        $update->save();
+
+        return $update;
     }
 }

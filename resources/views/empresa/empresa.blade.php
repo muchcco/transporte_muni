@@ -108,8 +108,8 @@ var btnStoreEmpresa = () => {
     }
 
     var formData = new FormData();
-    var file_data = $("#foto").prop("files")[0];
-    formData.append("foto", file_data);
+    // var file_data = $("#foto").prop("files")[0];
+    // formData.append("foto", file_data);
     
     formData.append("tipo", $("#tipo").val());
     formData.append("subtipo", $("#subtipo").val());
@@ -217,8 +217,8 @@ var EditarEmpresa = (id) => {
 
 var btnUpdateEmpresa = (id) => {
     var formData = new FormData();
-    var file_data = $("#foto").prop("files")[0];
-    formData.append("foto", file_data);
+    // var file_data = $("#foto").prop("files")[0];
+    // formData.append("foto", file_data);
    
     formData.append("id", id);
     formData.append("tipo", $("#tipo").val());

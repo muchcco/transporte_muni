@@ -115,6 +115,16 @@ var btnStoreVehiculo = () => {
     }else {
         $('#correo').removeClass("hasError");
     }
+    if ($('#n_placa').val() == null  || $('#n_placa').val() == "" ) {
+        $('#n_placa').addClass("hasError");
+    }else {
+        $('#n_placa').removeClass("hasError");
+    }
+    if ($('#tipologia').val() == null  || $('#tipologia').val() == "" ) {
+        $('#tipologia').addClass("hasError");
+    }else {
+        $('#tipologia').removeClass("hasError");
+    }
 
     var formData = new FormData();
     
@@ -130,6 +140,8 @@ var btnStoreVehiculo = () => {
     formData.append("distrito", $("#distrito").val());
     formData.append("dir_referencia", $("#dir_referencia").val());
     formData.append("celular", $("#celular").val());
+    formData.append("n_placa", $("#n_placa").val());
+    formData.append("tipologia", $("#tipologia").val());
     formData.append("_token", $("#_token").val());
 
     $.ajax({
@@ -144,19 +156,41 @@ var btnStoreVehiculo = () => {
             document.getElementById("btnEnviarForm").innerHTML = '<i class="fa fa-spinner fa-spin"></i> ESPERE';
             document.getElementById("btnEnviarForm").disabled = true;
         },
-        success: function(result){            
+        success: function(result){ 
             
-            tabla_seccion();
-            $("#modal_add_em").modal('hide');
+            console.log(result);
 
-            Swal.fire(
-                'Guardado!',
-                'El registro se guardo con exito!',
-                'success'
-            )
+            if(result.status == '210'){
+                tabla_seccion();
+                $("#modal_add_em").modal('hide');
+                Swal.fire(
+                    'Advertencia!',
+                    result.message,
+                    'warning'
+                )
+            }else if(result.status == '204'){
+                tabla_seccion();
+                $("#modal_add_em").modal('hide');
+                Swal.fire(
+                    'Advertencia!',
+                    result.message,
+                    'warning'
+                )
+            }else{
+                tabla_seccion();
+                $("#modal_add_em").modal('hide');
+
+                Swal.fire(
+                    'Guardado!',
+                    'El registro se guardo con exito!',
+                    'success'
+                )
+            }
+            
+            
         },
         error: function(jqxhr,textStatus,errorThrown){
-            console.log(jqxhr.responseJSON.error);
+            console.log(jqxhr.responseJSON);
             console.log(textStatus);
             console.log(errorThrown);          
             
@@ -166,6 +200,41 @@ var btnStoreVehiculo = () => {
     });
 
 
+}
+
+var EliminarVehiculo = (idvehiculo) => {
+    swal.fire({
+            title: "Seguro que desea dar de baja al vehículo?",
+            text: "El vehículo será se dará de baja y no se mostraran sus registros",
+            icon: "error",
+            showCancelButton: !0,
+            confirmButtonText: "Aceptar",
+            cancelButtonText: "Cancelar"
+        }).then((result) => {
+            if (result.value) {
+                $.ajax({
+                    url: "{{ route('vehiculo.baja_vehiculo') }}",
+                    type: 'post',
+                    data: {"_token": "{{ csrf_token() }}", idvehiculo: idvehiculo},
+                    success: function(response){
+                        console.log(response);
+
+                        $( "#archivos_body" ).load(window.location.href + " #archivos_body" ); 
+
+                        Swal.fire({
+                            icon: "success",
+                            text: "El vehículo fue dado de baja con Exito!",
+                            confirmButtonText: "Aceptar"
+                        })
+
+                    },
+                    error: function(error){
+                        console.log('Error '+error);
+                    }
+                });
+            }
+
+        })
 }
 
 </script>

@@ -67,16 +67,16 @@ class EmpresaController extends Controller
             $save->destino = $request->destino;
             $save->ruta = $request->ruta;
 
-            if($request->hasFile('foto'))
-            {
-                $archivoIMG = $request->file('foto');
-                $nombreIMG = $archivoIMG->getClientOriginalName();
-                $nameruta = '/img/fotoempresa/'; // RUTA DONDE SE VA ALMACENAR EL DOCUMENTO PDF
-                // $nameruta = $estructura_carp;  // GUARDAR EN UN SERVIDOR
-                $archivoIMG->move($nameruta, $nombreIMG);
+            // if($request->hasFile('foto'))
+            // {
+            //     $archivoIMG = $request->file('foto');
+            //     $nombreIMG = $archivoIMG->getClientOriginalName();
+            //     $nameruta = '/img/fotoempresa/'; // RUTA DONDE SE VA ALMACENAR EL DOCUMENTO PDF
+            //     // $nameruta = $estructura_carp;  // GUARDAR EN UN SERVIDOR
+            //     $archivoIMG->move($nameruta, $nombreIMG);
 
-                $save->foto = $nombreIMG;
-            }
+            //     $save->foto = $nombreIMG;
+            // }
 
             $save->flag = 1;
             $save->save();

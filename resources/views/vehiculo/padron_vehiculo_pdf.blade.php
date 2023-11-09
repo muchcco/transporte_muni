@@ -108,13 +108,13 @@
                 </tr>
                 <tr>
                     <th>MARCA:</th>
-                    <th>{{ $marca_v->name_marca }}</th>
+                    <th>{{ isset($marca_v->name_marca) ? ' - ' : ' Actualizar '}}</th>
                     <th>AÑO DE FABRICACION:</th>
                     <th>{{ $vehiculo->año_fabricacion }}</th>
                 </tr>
                 <tr>
                     <th>MODELO:</th>
-                    <th>{{ $marca_v->name_modelo }}</th>
+                    <th>{{ isset($marca_v->name_modelo) ? ' - ' : ' Actualizar '}}</th>
                     <th>ASIENTOS:</th>
                     <th>{{ $vehiculo->n_asientos }}</th>
                 </tr>

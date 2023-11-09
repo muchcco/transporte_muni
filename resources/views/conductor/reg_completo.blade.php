@@ -6,7 +6,59 @@
 
 
 <style>
+    .foto-dat{
+        display: flex;
+        flex-direction: row;
+        /* margin-bottom: 2em; */
+    }
 
+    .foto-dat-1{
+        width: 70%;
+    }
+
+    .foto-dat-2{
+        width: 30%;
+        /* border: 2px solid black; */
+        display: flex;
+        flex-direction: column;
+    }
+
+    .foto-conductor{
+        max-width: 80%;    
+        justify-self: center;
+        align-self: center;
+        margin-top: 2em;
+        height: 100px;
+        border: 2px solid black;
+        position: relative;
+    }
+
+    .btn-eliminar-foto{
+        width: 50%;
+        justify-self: center;
+        align-self: center;
+    }
+
+    #fotoup {
+        position: absolute; /* Permite posicionar el contenido de forma absoluta dentro del contenedor padre */
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+    }
+
+    .img-foto-conductor {
+        max-width: 100%; /* Ajusta el ancho máximo de la imagen al 100% del contenedor */
+        max-height: 100%; /* Ajusta la altura máxima de la imagen al 100% del contenedor */
+        display: block; /* Elimina el espacio adicional debajo de la imagen */
+        margin: 0 auto; /* Centra horizontalmente la imagen */
+    }
+
+    .btn-input-foto{
+        width: 80%;
+        justify-self: center;
+        align-self: center;
+    }
 
 </style>
 
@@ -99,8 +151,10 @@ var btnUpdateConductor = (idpersona) => {
     }else {
         $('#correo').removeClass("hasError");
     }
+    // foto_conductor
 
     var formData = new FormData();
+
     formData.append("idpersona", idpersona);
     formData.append("tipo_documento", $("#tipo_documento").val());
     formData.append("dni", $("#dni").val());
@@ -207,10 +261,16 @@ var btnEditConductor = (idconductor) => {
 var btnSaveConductor = (idconductor) => {
 
     var formData = new FormData();
+    var file_data = $("#foto_conductor").prop("files")[0];
+    formData.append("foto_conductor", file_data);
+
     formData.append("idconductor", idconductor);
+    formData.append("monto_recibo", $("#monto_recibo").val());
     formData.append("pago_padron", $("#pago_padron").val());
     formData.append("idcategoria_licencia", $("#idcategoria_licencia").val());
     formData.append("n_brevete", $("#n_brevete").val());
+    formData.append("n_recibo", $("#n_recibo").val());
+    formData.append("fecha_recibo", $("#fecha_recibo").val());
     formData.append("fecha_expedicion_brevete", $("#fecha_expedicion_brevete").val());
     formData.append("fecha_vencimiento_brevete", $("#fecha_vencimiento_brevete").val());
     formData.append("_token", $("#_token").val());
@@ -280,191 +340,6 @@ var btnSaveConductor = (idconductor) => {
 }
 
 
-var btnAsigVehiculo = (idpersona) => {
-
-    console.log(idpersona);
-    $.ajax({
-        type:'post',
-        url: "{{ route('conductor.modals.md_vehiculo') }}",
-        dataType: "json",
-        data:{"_token": "{{ csrf_token() }}", idpersona : idpersona},
-        success:function(data){
-            $("#modal_add_em").html(data.html);
-            $("#modal_add_em").modal('show');
-        }
-    });
-
-} 
-
-var btnSaveVehiculo = () =>{
-
-    var idpersona = "{{ $conductor->idpersona }}";
-
-    var formData = new FormData();    
-    formData.append("idpersona", idpersona);
-    formData.append("categoria", $("#categoria").val());
-    formData.append("subtipo", $("#subtipo").val());
-    formData.append("n_placa", $("#n_placa").val());
-    formData.append("combustible", $("#combustible").val());
-    formData.append("serie", $("#serie").val());
-    formData.append("color", $("#color").val());
-    formData.append("año_fabricacion", $("#año_fabricacion").val());
-    formData.append("n_asientos", $("#n_asientos").val());
-    formData.append("motor", $("#motor").val());
-    formData.append("carroceria", $("#carroceria").val());
-    formData.append("_token", $("#_token").val());
-
-    // Selector para mostrar el porcentaje
-    var porcentajeElemento = $('#porcentaje_b');
-
-    $.ajax({
-        type: "POST",
-        dataType: "json",
-        cache: false,
-        url: "{{ route('conductor.store_vehiculo') }}",
-        data: formData,
-        processData: false,
-        contentType: false,
-        beforeSend: function () {
-            document.getElementById("btnEnviarForm").innerHTML = '<i class="fa fa-spinner fa-spin"></i> Cargando datos...';
-            document.getElementById("btnEnviarForm").disabled = true;
-            porcentajeElemento.text('0%');
-        },
-        xhr: function() {
-            var xhr = new window.XMLHttpRequest();
-            xhr.upload.addEventListener('progress', function(e) {
-                if (e.lengthComputable) {
-                    // Calcula el porcentaje de progreso y actualiza el elemento
-                    var porcentaje = (e.loaded / e.total) * 100;
-                    porcentajeElemento.text(porcentaje.toFixed(2) + '%');
-                }
-            }, false);
-            return xhr;
-        },
-        success: function(result){            
-            $("#modal_add_em").modal('hide');
-            $( "#vehiculo_div" ).load(window.location.href + " #vehiculo_div" );             
-            $( "#archivo_vehiculo_dat" ).load(window.location.href + " #archivo_vehiculo_dat" );
-            porcentajeElemento.text('100%');
-
-                toastr.options = {
-                    "closeButton": false,
-                    "debug": false,
-                    "newestOnTop": false,
-                    "progressBar": false,
-                    "positionClass": "toast-bottom-right",
-                    "preventDuplicates": false,
-                    "onclick": null,
-                    "showDuration": "300",
-                    "hideDuration": "1000",
-                    "timeOut": "5000",
-                    "extendedTimeOut": "1000",
-                    "showEasing": "swing",
-                    "hideEasing": "linear",
-                    "showMethod": "fadeIn",
-                    "hideMethod": "fadeOut"
-                };
-
-                toastr.info("El conductor se guardo con exito!", "Guardado:");
-        },
-        error: function(jqxhr,textStatus,errorThrown){
-            console.log(jqxhr.responseJSON.error);
-            console.log(textStatus);
-            console.log(errorThrown);          
-            
-            document.getElementById("btnEnviarForm").innerHTML = 'ENVIAR';
-            document.getElementById("btnEnviarForm").disabled = false;
-        }
-    });
-
-}
-
-var btnEditVehiculo = (idvehiculo, idpersona) =>{
-
-    console.log(idvehiculo);
-    $.ajax({
-        type:'post',
-        url: "{{ route('conductor.modals.md_vehiculo_edit') }}",
-        dataType: "json",
-        data:{"_token": "{{ csrf_token() }}", idvehiculo : idvehiculo, idpersona : idpersona},
-        success:function(data){
-            $("#modal_add_em").html(data.html);
-            $("#modal_add_em").modal('show');
-        }
-    });
-
-}
-
-var btnUpdateVehiculo = (idvehiculo) => {
-
-
-    var formData = new FormData();    
-    formData.append("idvehiculo", idvehiculo);
-    formData.append("categoria", $("#categoria").val());
-    formData.append("subtipo", $("#subtipo").val());
-    formData.append("n_placa", $("#n_placa").val());
-    formData.append("combustible", $("#combustible").val());
-    formData.append("serie", $("#serie").val());
-    formData.append("color", $("#color").val());
-    formData.append("año_fabricacion", $("#año_fabricacion").val());
-    formData.append("n_asientos", $("#n_asientos").val());
-    formData.append("motor", $("#motor").val());
-    formData.append("carroceria", $("#carroceria").val());
-    formData.append("_token", $("#_token").val());
-
-    // Selector para mostrar el porcentaje
-
-    $.ajax({
-        type: "POST",
-        dataType: "json",
-        cache: false,
-        url: "{{ route('conductor.update_vehiculo') }}",
-        data: formData,
-        processData: false,
-        contentType: false,
-        beforeSend: function () {
-            document.getElementById("btnEnviarForm").innerHTML = '<i class="fa fa-spinner fa-spin"></i> Cargando datos...';
-            document.getElementById("btnEnviarForm").disabled = true;
-        },
-        success: function(result){            
-            $("#modal_add_em").modal('hide');
-            $( "#vehiculo_div" ).load(window.location.href + " #vehiculo_div" ); 
-            
-            
-            
-            // porcentajeElemento.text('100%');
-
-                toastr.options = {
-                    "closeButton": false,
-                    "debug": false,
-                    "newestOnTop": false,
-                    "progressBar": false,
-                    "positionClass": "toast-bottom-right",
-                    "preventDuplicates": false,
-                    "onclick": null,
-                    "showDuration": "300",
-                    "hideDuration": "1000",
-                    "timeOut": "5000",
-                    "extendedTimeOut": "1000",
-                    "showEasing": "swing",
-                    "hideEasing": "linear",
-                    "showMethod": "fadeIn",
-                    "hideMethod": "fadeOut"
-                };
-
-                toastr.info("El conductor se guardo con exito!", "Guardado:");
-        },
-        error: function(jqxhr,textStatus,errorThrown){
-            console.log(jqxhr.responseJSON.error);
-            console.log(textStatus);
-            console.log(errorThrown);          
-            
-            document.getElementById("btnEnviarForm").innerHTML = 'ENVIAR';
-            document.getElementById("btnEnviarForm").disabled = false;
-        }
-    });
-
-}
 
 /* =================================================================== VALIDAR INPUT DE CARGA =================================================================== */
 
@@ -582,7 +457,7 @@ var btnCargarArchivos = (idconductor) =>{
 }
 
 var btnDeleteArchivo = (idvehiculo_archivo) => {
-
+    console.log(idvehiculo_archivo)
     swal.fire({
         title: "Seguro que desea eliminar el archivo?",
         text: "El archivo será eliminado totalmente de sus registros",

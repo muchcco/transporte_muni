@@ -13,10 +13,10 @@
     <tbody id="table_empresa_body">
         @foreach ($data as $i => $dat)
             <tr>
-                <th>{{ $dat->n_padron }} - {{ $dat->año }} </th>
-                <th>{{ $dat->nombre }} {{ $dat->apellido_pat }} {{ $dat->apellido_mat }}</th>
+                <th>{{ $dat->n_padron }} </th>
+                <th>{{ $dat->nombre }}</th>
                 <th>{{ $dat->dni }}</th>
-                <th>{{ $dat->descr_licencia }}</th>
+                <th>{{ $dat->desc_corta }}</th>
                 <th>{{ $dat->n_brevete }}</th>
                 <th>
                     @if ($dat->vehiculos_count == '0')

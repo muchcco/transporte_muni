@@ -15,7 +15,7 @@
 @section('script')
 <script src="{{ asset('assets/plugins/custom/datatables/datatables.bundle.js')}}"></script>
 
-@if (isset($flota_conductor->idpersona))
+@if (isset($flota_persona->idpersona))
 <script>
     $(document).ready(function() {
         tippy(".modal-tooglee", {
@@ -196,7 +196,7 @@
         console.log(idpersona);
         $.ajax({
             type:'post',
-            url: "{{ route('conductor.modals.md_vehiculo') }}",
+            url: "{{ route('empresa.flota.modals.md_vehiculo') }}",
             dataType: "json",
             data:{"_token": "{{ csrf_token() }}", idpersona : idpersona},
             success:function(data){
@@ -208,7 +208,7 @@
 
     var btnSaveVehiculo = () =>{
 
-        var idpersona = "{{ $conductor->idpersona }}";
+        var idpersona = "{{ $persona->idpersona }}";
         var idflota = "{{ $flota_empresa->idflota }}";
         var n_placa = $("#n_placa").val();
 
@@ -233,7 +233,7 @@
             type: "POST",
             dataType: "json",
             cache: false,
-            url: "{{ route('conductor.store_vehiculo') }}",
+            url: "{{ route('empresa.flota.store_vehiculo') }}",
             data: formData,
             processData: false,
             contentType: false,
@@ -255,8 +255,9 @@
             },
             success: function(result){            
                 $("#modal_add_em").modal('hide');
-                $( "#vehiculo_div" ).load(window.location.href + " #vehiculo_div" );             
+                $( "#vehiculo_div" ).load(window.location.href + " #vehiculo_div" );            
                 $( "#archivo_vehiculo_dat" ).load(window.location.href + " #archivo_vehiculo_dat" );
+                location.reload();
                 porcentajeElemento.text('100%');
 
                     toastr.options = {
@@ -277,7 +278,7 @@
                         "hideMethod": "fadeOut"
                     };
 
-                    toastr.info("El conductor se guardo con exito!", "Guardado:");
+                    toastr.info("El vehiculo se guardo con exito!", "Guardado:");
 
                     // enviamos los datos para la actualizacion de la tb_emp_Flota del campo idvehiculo
                 $.ajax({
@@ -307,7 +308,7 @@
         console.log(idvehiculo);
         $.ajax({
             type:'post',
-            url: "{{ route('conductor.modals.md_vehiculo_edit') }}",
+            url: "{{ route('empresa.flota.modals.btnEditVehiculo') }}",
             dataType: "json",
             data:{"_token": "{{ csrf_token() }}", idvehiculo : idvehiculo, idpersona : idpersona},
             success:function(data){
@@ -341,7 +342,7 @@
             type: "POST",
             dataType: "json",
             cache: false,
-            url: "{{ route('conductor.update_vehiculo') }}",
+            url: "{{ route('empresa.flota.update_vehiculo') }}",
             data: formData,
             processData: false,
             contentType: false,
@@ -352,9 +353,7 @@
             success: function(result){            
                 $("#modal_add_em").modal('hide');
                 $( "#vehiculo_div" ).load(window.location.href + " #vehiculo_div" ); 
-                
-                
-                
+                                
                 // porcentajeElemento.text('100%');
 
                     toastr.options = {
@@ -375,7 +374,7 @@
                         "hideMethod": "fadeOut"
                     };
 
-                    toastr.info("El conductor se guardo con exito!", "Guardado:");
+                    toastr.info("El vehiculo se guardo con exito!", "Guardado:");
             },
             error: function(jqxhr,textStatus,errorThrown){
                 console.log(jqxhr.responseJSON.error);
@@ -711,7 +710,7 @@ $.ajax({
     <!--begin::Container-->
     <div id="kt_content_container" class=" container-xxl ">
         <div id="contenido_principal">
-            @if (isset($flota_conductor->idpersona))
+            @if (isset($flota_persona->idpersona))
                 <div class="d-flex flex-column flex-xl-row">
                     <!--begin::Sidebar-->
                     <div class="flex-column flex-lg-row-auto w-100 w-xl-350px mb-10">
@@ -727,17 +726,17 @@ $.ajax({
                                     <!--begin::Avatar-->
                                     <div class="symbol symbol-100px symbol-circle mb-7">
                                         {{-- <img src="assets/media/avatars/150-1.jpg" alt="image"> --}}
-                                        <div class="symbol-label  fw-semibold bg-primary text-inverse-primary" style="font-size: 5em">{{ $conductor->apellido_pat[0] }}</div>
+                                        <div class="symbol-label  fw-semibold bg-primary text-inverse-primary" style="font-size: 5em">{{ $persona->apellido_pat[0] }}</div>
                                     </div>
                                     <!--end::Avatar-->
                                     <!--begin::Name-->
-                                    <a href="#" class="fs-3 text-gray-800 text-hover-primary fw-bolder mb-3">{{ $conductor->apellido_pat }} {{ $conductor->apellido_mat }}, {{ $conductor->nombre }}</a>
+                                    <a href="#" class="fs-3 text-gray-800 text-hover-primary fw-bolder mb-3">{{ $persona->apellido_pat }} {{ $persona->apellido_mat }}, {{ $persona->nombre }}</a>
                                     <!--end::Name-->
                                     <!--begin::Position-->
                                     <div class="mb-9">
                                         <!--begin::Badge-->
                                         <div class="badge badge-lg badge-light-success d-inline">
-                                            @if ($flota_conductor->sustitucion == 1)
+                                            @if ($flota_persona->sustitucion == 1)
                                                 Registro Nuevo
                                             @else
                                                 Sustitución
@@ -749,14 +748,14 @@ $.ajax({
                                     <!--end::Position-->
                                     <!--begin::Info-->
                                     <!--begin::Info heading-->
-                                    <div class="fw-bolder mb-3">N° de padron
-                                    <i class="fas fa-exclamation-circle ms-2 fs-7" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-html="true" data-bs-content="Correlativo para el año {{ $conductor->año }}" data-bs-original-title="" title=""></i></div>
+                                    <div class="fw-bolder mb-3">N° de flota
+                                    <i class="fas fa-exclamation-circle ms-2 fs-7" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-html="true" data-bs-content="Número de Flota" data-bs-original-title="" title=""></i></div>
                                     <!--end::Info heading-->
                                     <div class="d-flex flex-wrap flex-center" id="padron_number">
                                         <!--begin::Stats-->
                                         <div class="border border-gray-300 border-dashed rounded py-3 px-3 mb-3">
                                             <div class="fs-4 fw-bolder text-gray-700">
-                                                <span class="w-75px">{{ $conductor->n_padron }} - {{ $conductor->año }}</span>
+                                                <span class="w-75px">{{ $flota_persona->correlativo }}</span>
                                             </div>
                                             <div class="fw-bold text-muted"></div>
                                         </div>
@@ -779,7 +778,7 @@ $.ajax({
                                         <!--end::Svg Icon-->
                                     </span></div>
                                     <span data-bs-toggle="tooltip" data-bs-trigger="hover" title="" data-bs-original-title="Edit customer details">
-                                        <button type="button" class="btn btn-sm btn-light-primary" data-toggle="modal" data-target="#large-Modal"  onclick="btnEditPersona('{{ $conductor->idpersona }}')">Editar</button>
+                                        <button type="button" class="btn btn-sm btn-light-primary" data-toggle="modal" data-target="#large-Modal"  onclick="btnEditPersona('{{ $persona->idpersona }}')">Editar</button>
                                     </span>
                                 </div>
                                 <!--end::Details toggle-->
@@ -790,21 +789,21 @@ $.ajax({
                                         <div id="porcentaje"></div>
                                         <!--begin::Details item-->
                                         <div class="fw-bolder mt-5">N° de documento</div>
-                                        <div class="text-gray-600">{{ $conductor->dni }}</div>
+                                        <div class="text-gray-600">{{ $persona->dni }}</div>
                                         <!--begin::Details item-->
                                         <!--begin::Details item-->
                                         <div class="fw-bolder mt-5">Correo</div>
                                         <div class="text-gray-600">
-                                            <a href="#" class="text-gray-600 text-hover-primary">{{ $conductor->correo }}</a>
+                                            <a href="#" class="text-gray-600 text-hover-primary">{{ $persona->correo }}</a>
                                         </div>
                                         <!--begin::Details item-->
                                         <!--begin::Details item-->
                                         <div class="fw-bolder mt-5">Dirección</div>
-                                        <div class="text-gray-600">{{ $conductor->direccion }}</div>
+                                        <div class="text-gray-600">{{ $persona->direccion }}</div>
                                         <!--begin::Details item-->
                                         <!--begin::Details item-->
                                         <div class="fw-bolder mt-5">Teléfono</div>
-                                        <div class="text-gray-600">{{ $conductor->celular }}</div>
+                                        <div class="text-gray-600">{{ $persona->celular }}</div>
                                         <!--begin::Details item-->
                                     </div>
                                 </div>
@@ -828,7 +827,7 @@ $.ajax({
                             </li>
                             <li class="nav-item ms-auto">
                                 <!--begin::Action menu-->
-                                <button type="button" class="btn btn-danger ps-7" data-toggle="modal" data-target="#large-Modal"  onclick="mdBajaFlota('{{ $flota_conductor->idflota }}')">Baja
+                                <button type="button" class="btn btn-danger ps-7" data-toggle="modal" data-target="#large-Modal"  onclick="mdBajaFlota('{{ $flota_persona->idflota }}')">Baja
                                 <!--begin::Svg Icon | path: icons/duotune/arrows/arr072.svg-->
                                 <span class="svg-icon svg-icon-2 me-0">
                                 
@@ -850,17 +849,17 @@ $.ajax({
                                         <!--begin::Card title-->
                                         <div class="card-title flex-column">
                                             <h2 class="mb-1">Datos del Vehículo</h2>
-                                            <div class="fs-6 fw-bold text-muted">Asignado al conductor {{ $conductor->apellido_pat }} {{ $conductor->apellido_mat }}, {{ $conductor->nombre }}</div>
+                                            <div class="fs-6 fw-bold text-muted">Asignado al conductor {{ $persona->apellido_pat }} {{ $persona->apellido_mat }}, {{ $persona->nombre }}</div>
                                         </div>
                                         <!--end::Card title-->
                                         <!--begin::Card toolbar-->
                                         <div class="card-toolbar" id="vehiculo_asig">
                                             @if (!($vehiculo))
-                                                <button type="button" class="btn btn-light-danger btn-sm" data-toggle="modal" data-target="#large-Modal"  onclick="btnAsigVehiculo('{{ $conductor->idpersona }}')">
+                                                <button type="button" class="btn btn-light-danger btn-sm" data-toggle="modal" data-target="#large-Modal"  onclick="btnAsigVehiculo('{{ $persona->idpersona }}')">
                                                 <!--SVG file not found: media/icons/duotune/art/art008.svg-->
                                                 Agregar Vehículo</button>
                                             @else
-                                                <button type="button" class="btn btn-light-primary btn-sm" data-toggle="modal" data-target="#large-Modal"  onclick="btnEditVehiculo('{{ $vehiculo->idvehiculo }}', '{{ $conductor->idpersona }}')">
+                                                <button type="button" class="btn btn-light-primary btn-sm" data-toggle="modal" data-target="#large-Modal"  onclick="btnEditVehiculo('{{ $vehiculo->idvehiculo }}', '{{ $persona->idpersona }}')">
                                                 <!--SVG file not found: media/icons/duotune/art/art008.svg-->
                                                 Editar Vehículo</button>
                                             @endif
@@ -910,16 +909,12 @@ $.ajax({
                                             @else
                                                 <table class="tablas">
                                                     <tr>
-                                                        <th>N° DE PADRON:</th>
-                                                        <th colspan="3">{{ $vehiculo->n_padron }} - {{ $vehiculo->año }}</th>
-                                                    </tr>
-                                                    <tr>
                                                         <th>PLACA:</th>
                                                         <th colspan="3">{{ $vehiculo->n_placa }}</th>
                                                     </tr>
                                                     <tr>
                                                         <th>PROPIETARIO:</th>
-                                                        <th colspan="3">{{ $conductor->apellido_pat }} {{ $conductor->apellido_mat }}, {{ $conductor->nombre }}</th>
+                                                        <th colspan="3">{{ $persona->apellido_pat }} {{ $persona->apellido_mat }}, {{ $persona->nombre }}</th>
                                                     </tr>
                                                     <tr>
                                                         <th>DOMICILIO:</th>

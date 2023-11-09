@@ -1,7 +1,7 @@
 <div class="modal-dialog modal-xl" role="document" style="max-width:70%">
     <div class="modal-content" >
         <div class="modal-header">
-            <h4 class="modal-title">AÑADIR UN NUEVO CONDUCTOR </h4>
+            <h4 class="modal-title">AÑADIR UN NUEVO VEHICULO </h4>
              <!--begin::Close-->
              <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
                 <span class="svg-icon svg-icon-2x">X</span>
@@ -15,7 +15,7 @@
                 <input type="hidden" name="_token" id="_token" value="{{ csrf_token() }}" />                
                 <div id="seccion_personales" class="">
                     
-                    <h5>Ingresar datos personales 
+                    <h5>Ingresar datos del responsable 
                     </h5>
                     <br />
                     <div class="row g-7 mb-6">
@@ -107,6 +107,21 @@
                             <input type="text" class="form-control form-control-solid"  id="correo" name="correo" >
                         </div>
                     </div>
+                    <h5>Datos básicos del vehículo</h5>
+                    <div class="row g-7 mb-6">
+                        <div class="col-md-4 fv-row">
+                            <label class="required fs-6 fw-bold mb-2">N° de Placa</label>
+                            <input type="text" class="form-control form-control-solid" id="n_placa" name="n_placa" >
+                        </div>
+                        <div class="col-md-4 fv-row">
+                            <label class="required fs-6 fw-bold mb-2 ">Tipologia</label>
+                            <select class="form-select form-select-solid" name="tipologia" id="tipologia" >
+                                <option value="1" >Auto Coletivo</option>
+                                <option value="2" >Microbus</option>                                                                    
+                            </select>
+                        </div>
+                    </div>
+
                
             </form>
         </div>

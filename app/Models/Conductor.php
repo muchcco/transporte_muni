@@ -17,13 +17,17 @@ class Conductor extends Model
                             'idpersona', 
                             'idcategoria_licencia',                            
                             'n_brevete', 
+                            'foto_conductor',
                             'fecha_expedicion_brevete', 
                             'fecha_vencimiento_brevete', 
                             'n_padron',
                             'mes',
+                            'monto_recibo',
                             'año',
                             'pago_padron',
                             'nota_conductor',
+                            'n_recibo',
+                            'fecha_recibo',
                             'flag'    
                         ];
 

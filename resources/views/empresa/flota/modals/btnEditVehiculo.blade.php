@@ -1,15 +1,7 @@
 <div class="modal-dialog modal-xl" role="document" style="max-width:70%">
     <div class="modal-content" >
         <div class="modal-header">
-            <h4 class="modal-title">   
-                @if ($vehiculo->n_placa == NULL)
-                    GUARDAR
-                @else
-                    EDITAR
-                @endif
-
-                VEHICULO 
-            </h4>
+            <h4 class="modal-title">EDITAR VEHICULO </h4>
              <!--begin::Close-->
              <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
                 <span class="svg-icon svg-icon-2x">X</span>
@@ -23,7 +15,7 @@
                 <input type="hidden" name="_token" id="_token" value="{{ csrf_token() }}" />                
                 <div id="seccion_personales" class="">
                     <br />
-                    <h5>Datos del vehiculo asignado al responsable - {{ $persona->apellido_pat }} {{ $persona->apellido_mat }}, {{ $persona->nombre }}</h5>
+                    <h5>Datos del vehiculo asignado al conductor - {{ $persona->apellido_pat }} {{ $persona->apellido_mat }}, {{ $persona->nombre }}</h5>
                         <br />
 
                     <div class="row g-7 mb-6">
@@ -36,22 +28,14 @@
                             <select class="form-select form-select-solid" name="tipo" id="tipo" >
                                 <option value="0" disabled>-- SELECCIONE UNA OPCION --</option>
                                 @foreach ($tipo_v as $tipo)
-                                    @if ($tipo_select == NULL)
-                                        <option value="{{ $tipo->idtipo_vehiculo }}"  >{{ $tipo->min_nombre }}</option>
-                                    @else
-                                        <option value="{{ $tipo->idtipo_vehiculo }}"  {{ $tipo_select->idtipo_vehiculo == $tipo->idtipo_vehiculo ? 'selected': '' }} >{{ $tipo->min_nombre }}</option>
-                                    @endif                                    
+                                    <option value="{{ $tipo->idtipo_vehiculo }}"  {{ $tipo_select->idtipo_vehiculo == $tipo->idtipo_vehiculo ? 'selected': '' }} >{{ $tipo->min_nombre }}</option>
                                 @endforeach
                             </select>
                         </div>
                         <div class="col-md-4 fv-row">
                             <label class="required fs-6 fw-bold mb-2">Modelo</label>
                             <select class="form-select form-select-solid" name="subtipo" id="subtipo" >
-                                @if ($tipo_select == null)
-                                    <option value="0"   >-- SELECCIONE UNA OPCION --</option>
-                                @else
-                                    <option value="{{ $tipo_select->idsubtipo_vehiculo }}"   >{{ $tipo_select->name_modelo }}</option>    
-                                @endif                                
+                                <option value="{{ $tipo_select->idsubtipo_vehiculo }}"   >{{ $tipo_select->name_modelo }}</option>
                             </select>
                         </div>
                     </div>
@@ -93,33 +77,6 @@
                         <div class="col-md-4 fv-row">
                             <label class="required fs-6 fw-bold mb-2 ">Carroceria</label>
                             <input type="text" class="form-control form-control-solid"  id="carroceria" name="carroceria"  oninput="convertirAMayusculas(this)" value="{{ $vehiculo->carroceria }}">
-                        </div>
-                        <div class="col-md-4 fv-row">
-                            <label class="required fs-6 fw-bold mb-2">Tipologia </label>
-                            <input type="text" class="form-control form-control-solid"  id="tipologia" name="tipologia"  oninput="convertirAMayusculas(this)" value="{{ $vehiculo->tipologia }}">
-                        </div>
-                    </div>
-                    <div class="row g-7 mb-6">
-                        <div class="col-md-4 fv-row">
-                            <label class="required fs-6 fw-bold mb-2">Pagó derecho de empadronamiento? </label>
-                            <select class="form-select form-select-solid" name="pago_padron" id="pago_padron" >
-                                <option value="1" {{ $vehiculo->pago_padron == '1' ? 'selected' : '' }}>NO</option>
-                                <option value="2" {{ $vehiculo->pago_padron == '2' ? 'selected' : '' }}>SI</option>
-                            </select>
-                        </div>
-                        <div class="col-md-4 fv-row">
-                            <label class="required fs-6 fw-bold mb-2 ">N° de recibo</label>
-                            <input type="text" class="form-control form-control-solid"  id="n_recibo" name="n_recibo"   value="{{ $vehiculo->n_recibo }}">
-                        </div>
-                        <div class="col-md-4 fv-row">
-                            <label class="required fs-6 fw-bold mb-2">Fecha de recibo </label>
-                            <input type="datetime-local" class="form-control form-control-solid"  id="fecha_recibo" name="fecha_recibo" value="{{ $vehiculo->fecha_recibo }}">
-                        </div>
-                    </div>
-                    <div class="row g-7 mb-6">
-                        <div class="col-md-4 fv-row">
-                            <label class="required fs-6 fw-bold mb-2 ">Monto del recibo (en soles)</label>
-                            <input type="text" class="form-control form-control-solid"  id="monto_recibo" name="monto_recibo"   value="{{ $vehiculo->monto_recibo }}">
                         </div>
                     </div>
                

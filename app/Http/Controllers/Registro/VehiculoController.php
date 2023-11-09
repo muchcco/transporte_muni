@@ -11,6 +11,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Str;
 use App\Models\Archivo;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\Archivovehiculo;
 
 class VehiculoController extends Controller
 {
@@ -22,12 +23,12 @@ class VehiculoController extends Controller
     public function tb_index(Request $request)
     {
         $data = DB::table('db_vehiculo as v')
-                        ->select('v.*', 'p.*', DB::raw('IFNULL(count_emp, "0") as afiliado'))
-                        ->join('db_persona as p', 'p.idpersona', '=', 'v.idpersona')
-                        ->leftJoin(DB::raw('(SELECT idflota, idpersona, COUNT(*) AS count_emp
-                            FROM db_emp_flota
-                            GROUP BY idflota, idpersona) as f'), 'f.idpersona', '=', 'v.idpersona')
-                        ->get();
+                            ->select('v.*', 'p.*', DB::raw('IFNULL(count_emp, "0") AS afiliado'))
+                            ->leftJoin('db_persona as p', 'p.idpersona', '=', 'v.idpersona')
+                            ->leftJoin(DB::raw('(SELECT idflota, idpersona, idvehiculo, COUNT(*) AS count_emp FROM db_emp_flota GROUP BY idflota, idpersona) as f'), 'f.idvehiculo', '=', 'v.idvehiculo')
+                            ->whereNotNull('v.n_padron')
+                            ->where('v.flag', 1)
+                            ->get();
                             //dd($data);
 
         return view('vehiculo.tablas.tb_index', compact('data'));
@@ -54,11 +55,88 @@ class VehiculoController extends Controller
                 'ape_mat' => 'required',
             ]);
 
-            $persona_id = Persona::where('dni', $request->dni)->first();           
+            $vehiculo_padron = DB::table('db_vehiculo')->orderby('idvehiculo', 'DESC')->first();
+            
 
+            if(isset($vehiculo_padron->n_padron)){
+                $cont_ = $vehiculo_padron->n_padron + 1;
+                // dd($cont_);
+                $codpadron = Str::padLeft($cont_, 8, '0');
+            }else{
+                $codpadron = '00000001';
+            }
+
+            $persona_id = Persona::where('dni', $request->dni)->first();
+            $vehiculo = Vehiculo::where('n_placa', $request->n_placa)->first();
+        //    dd($persona_id);
+            
+            // dd("sad");
             if(isset($persona_id)){
-                $persona_id_p = $persona_id->idpersona;
-            } else{
+                if( $vehiculo->idpersona == $persona_id->idpersona && $vehiculo->n_placa == $request->n_placa && $vehiculo->n_padron != NULL ){
+                
+                    $response_ = response()->json([
+                        'data' => null,
+                        'message' => 'El vehículo ya fue registrado',
+                        'status' => '210'
+                    ], 200);
+    
+                    return $response_;
+    
+                }elseif($vehiculo->idpersona != $persona_id->idpersona && $vehiculo->n_placa == $request->n_placa){
+    
+                    $vehi = Vehiculo::join('db_persona', 'db_persona.idpersona', '=', 'db_vehiculo.idpersona')->where('db_vehiculo.idpersona', $vehiculo->idpersona)->first();
+    
+                    $response_ = response()->json([
+                        'data' => null,
+                        'message' => "El vehículo pertence la persona " . $vehi->nombre . ' ' . $vehi->apellido_pat . ' ' .  $vehi->apellido_mat,
+                        'status' => '210'
+                    ], 200);
+    
+                    return $response_;
+                }elseif($vehiculo->flag = 0 ){
+                    $save = Vehiculo::findOrFail($vehiculo->idvehiculo);
+                    $save->flag = 1;
+                    $save->save();
+
+                    return $save;
+                }
+                // dd("sad");
+                if(isset($vehiculo)){
+
+                    $save = Vehiculo::findOrFail($vehiculo->idvehiculo);
+                    $save->n_padron = $codpadron;
+                    $save->flag = 1;
+                    $save->save();
+
+                    $dat = DB::table('db_vehiculo_responsable')->insert([
+                        'id_vehiculo' =>    $save->idvehiculo,
+                        'id_persona'  =>    $persona_id->idpersona,
+                    ]);
+
+                    return $save;
+
+                }else{
+                    
+                    $save = new Vehiculo;
+                    $save->idpersona = $persona_id->idpersona;
+                    $save->n_placa = $request->n_placa;
+                    $save->tipologia = $request->tipologia;
+                    $save->n_padron = $codpadron;
+                    $save->flag = 1;
+                    $save->mes = Carbon::now()->format('m');
+                    $save->año = Carbon::now()->format('Y');
+                    $save->save();
+
+                    $dat = DB::table('db_vehiculo_responsable')->insert([
+                        'id_vehiculo' =>    $save->idvehiculo,
+                        'id_persona'  =>    $persona_id->idpersona,
+                    ]);
+
+                    return $save;
+                }
+                
+            }else{
+                // dd("sad");
                 $persona = new Persona;
                 $persona->dni = $request->dni;
                 $persona->nombre = $request->nombre;
@@ -73,33 +151,23 @@ class VehiculoController extends Controller
                 $persona->ref_direccion = $request->dir_referencia;
                 $persona->save(); 
 
-                $persona_id_p = $persona->idpersona;
-            }
+                $save = new Vehiculo;
+                $save->idpersona = $persona->idpersona;
+                $save->n_padron = $codpadron;
+                $save->n_placa = $request->n_placa;
+                $save->tipologia = $request->tipologia;
+                $save->flag = 1;
+                $save->mes = Carbon::now()->format('m');
+                $save->año = Carbon::now()->format('Y');
+                $save->save();
 
-            $vehiculo_padron = DB::table('db_vehiculo')->orderby('idvehiculo', 'DESC')->first();
-
-            if(isset($vehiculo_padron->n_padron)){
-                $cont_ = $vehiculo_padron->n_padron + 1;
-                // dd($cont_);
-                $codpadron = Str::padLeft($cont_, 8, '0');
-            }else{
-                $codpadron = '00000001';
-            }
-            
-            $save = new Vehiculo;
-            $save->idpersona = $persona_id_p;
-            $save->n_padron = $codpadron;
-            $save->mes = Carbon::now()->format('m');
-            $save->año = Carbon::now()->format('Y');
-            $save->save();
-
-            $dat = DB::table('db_vehiculo_responsable')->insert([
-                                                                'id_vehiculo' =>    $save->idvehiculo,
-                                                                'id_persona'  =>    $persona_id_p,
-                                                            ]);
-
-            return $save;
-            
+                $dat = DB::table('db_vehiculo_responsable')->insert([
+                    'id_vehiculo' =>    $save->idvehiculo,
+                    'id_persona'  =>    $persona->idpersona,
+                ]);
+                
+                return $save;
+            }            
             // DB::commit();
     
 
@@ -114,6 +182,15 @@ class VehiculoController extends Controller
 
             return $response_;
         }
+    }
+
+    public function baja_vehiculo(Request $request)
+    {
+        $update = Vehiculo::findOrFail($request->idvehiculo);
+        $update->flag = 0;
+        $update->save();
+
+        return $update;
     }
 
     public function reg_completo(Request $request, $idvehiculo)
@@ -176,6 +253,9 @@ class VehiculoController extends Controller
         $update->n_asientos = $request->n_asientos;
         $update->motor = $request->motor;
         $update->carroceria = $request->carroceria;
+        $update->n_recibo = $request->n_recibo;
+        $update->fecha_recibo = $request->fecha_recibo;
+        $update->monto_recibo = $request->monto_recibo;
         $update->save();
 
         return $update;
@@ -240,5 +320,19 @@ class VehiculoController extends Controller
 
         $pdf = Pdf::loadView('vehiculo.padron_vehiculo_pdf', compact('vehiculo', 'persona', 'marca_v', 'dep_persona'))->setPaper('a4');
         return $pdf->stream();
+    }
+
+    public function delete_tip_dato(Request $request)
+    {        
+        $id_archivo = Archivovehiculo::where('idvehiculo_archivo', $request->idvehiculo_archivo)->first();
+        // dd($id_archivo);
+
+        if(file_exists( $id_archivo->ruta)){
+            unlink($id_archivo->ruta);
+        }
+
+        $delete = Archivovehiculo::where('idvehiculo_archivo', $request->idvehiculo_archivo)->delete();       
+
+        return $delete;
     }
 }

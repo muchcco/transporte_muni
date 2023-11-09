@@ -48,6 +48,10 @@ Route::group(['middleware' => ['auth']], function () {
             Route::get('/index/{idempresa}' , [FlotaController::class, 'index'])->name('index');
             Route::get('/tablas/tb_index' , [FlotaController::class, 'tb_index'])->name('tablas.tb_index');
             Route::post('/modals/md_crea_flota' , [FlotaController::class, 'md_crea_flota'])->name('modals.md_crea_flota');
+            Route::post('/modals/md_vehiculo' , [FlotaController::class, 'md_vehiculo'])->name('modals.md_vehiculo');
+            Route::post('/modals/btnEditVehiculo' , [FlotaController::class, 'btnEditVehiculo'])->name('modals.btnEditVehiculo');
+            Route::post('/store_vehiculo' , [FlotaController::class, 'store_vehiculo'])->name('store_vehiculo');
+            Route::post('/update_vehiculo' , [FlotaController::class, 'update_vehiculo'])->name('update_vehiculo');
             Route::post('/store_flota' , [FlotaController::class, 'store_flota'])->name('store_flota');            
             Route::get('/flota_vista/{idflota}' , [FlotaController::class, 'flota_vista'])->name('flota_vista');
             Route::post('/modals/baja_flota' , [FlotaController::class, 'baja_flota'])->name('modals.baja_flota');
@@ -74,7 +78,8 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/modals/md_vehiculo_edit' , [ConductorController::class, 'md_vehiculo_edit'])->name('modals.md_vehiculo_edit');
         Route::post('/update_vehiculo' , [ConductorController::class, 'update_vehiculo'])->name('update_vehiculo'); // GUARAR DATOS DEL CONDUCTOR
         Route::post('/store_tip_dato' , [ConductorController::class, 'store_tip_dato'])->name('store_tip_dato'); // GUARAR DATOS DEL CONDUCTOR
-        Route::post('/delete_tip_dato' , [ConductorController::class, 'delete_tip_dato'])->name('delete_tip_dato'); // GUARAR DATOS DEL CONDUCTOR
+        Route::post('/delete_tip_dato' , [ConductorController::class, 'delete_tip_dato'])->name('delete_tip_dato'); // GUARAR DATOS DEL CONDUCTOR  
+        Route::post('/añadir_foto' , [ConductorController::class, 'añadir_foto'])->name('añadir_foto');// AÑADIR FOTO DEL CONDUCTOR  
 
         Route::get('/padron_conductor_pdf/{idconductor}' , [ConductorController::class, 'padron_conductor_pdf'])->name('padron_conductor_pdf'); // EXPORTA EN UN FORMATO PDF
 
@@ -87,6 +92,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/tablas/tb_index' , [VehiculoController::class, 'tb_index'])->name('tablas.tb_index');
         Route::post('/modals/md_crea_vehiculo' , [VehiculoController::class, 'md_crea_vehiculo'])->name('modals.md_crea_vehiculo');
         Route::post('/store_vehiculo' , [VehiculoController::class, 'store_vehiculo'])->name('store_vehiculo');
+        Route::post('/baja_vehiculo' , [VehiculoController::class, 'baja_vehiculo'])->name('baja_vehiculo');
         Route::get('/reg_completo/{idvehiculo}' , [VehiculoController::class, 'reg_completo'])->name('reg_completo');
         Route::post('/modals/md_vehiculo_edit' , [VehiculoController::class, 'md_vehiculo_edit'])->name('modals.md_vehiculo_edit');
         Route::post('/update_vehiculo' , [VehiculoController::class, 'update_vehiculo'])->name('update_vehiculo'); // GUARAR DATOS DEL CONDUCTOR

@@ -78,10 +78,10 @@
                         <label class="required fs-6 fw-bold mb-2">Destino de ruta</label>
                         <input type="text" class="form-control form-control-solid" id="destino" name="destino" >
                     </div>
-                    <div class="col-md-3 fv-row">
+                    {{-- <div class="col-md-3 fv-row">
                         <label class="required fs-6 fw-bold mb-2">Foto de la empresa</label>
                         <input type="file" class="form-control form-control-solid" id="foto" name="foto"  accept="image/*">
-                    </div>
+                    </div> --}}
                 </div>
 
                 <div class="row g-7 mb-6">

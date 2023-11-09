@@ -78,14 +78,14 @@
                         <label class="required fs-6 fw-bold mb-2">Destino de ruta</label>
                         <input type="text" class="form-control form-control-solid" id="destino" name="destino" value="{{ $query->destino }}">
                     </div>
-                    <div class="col-md-3 fv-row" id="foto_div">
+                    {{-- <div class="col-md-3 fv-row" id="foto_div">
                         <label class="required fs-6 fw-bold mb-2">Foto de la empresa</label>
                         @if ($query->foto === NULL)
                             <input type="file" class="form-control form-control-solid" id="foto" name="foto"  accept="image/*">
                         @else
                             <p>{{ $query->foto }} <button type="button" class="btn btn-danger btn-sm" onclick="btnEliminarFoto('{{ $query->idempresa }}')">Eliminar</button></p>
                         @endif
-                    </div>
+                    </div> --}}
                 </div>
 
                 <div class="row g-7 mb-6">
