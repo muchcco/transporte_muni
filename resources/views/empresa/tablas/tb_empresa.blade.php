@@ -86,7 +86,7 @@
                 { "width": "" },
                 { "width": "" },
                 { "width": "" },
-                { "width": "" },
+                { "width": "150px" },
                 { "width": "" }
             ]
         });

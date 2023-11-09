@@ -126,5 +126,16 @@
 		<!--end::Page Custom Javascript-->
 		<!--end::Javascript-->
 	</body>
+	<script>
+		function reloadPage() {
+			location.reload();
+		}
+
+		// Programar la recarga cada 15 minutos (en milisegundos)
+		const interval = 15 * 60 * 1000; // 15 minutos en milisegundos
+
+		// Configurar el intervalo para recargar la página
+		const reloadInterval = setInterval(reloadPage, interval);
+	</script>
 	<!--end::Body-->
 </html>
