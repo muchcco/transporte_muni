@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use GuzzleHttp\Client;
 use App\Models\Persona;
 use Illuminate\Support\Facades\DB;
+use App\Models\Vehiculo;
 
 class RecursosController extends Controller
 {
@@ -134,6 +135,34 @@ class RecursosController extends Controller
         return $datos;
         // var_dump($response);
         
+    }
+
+    public function buscar_placa(Request $request)
+    {
+        $placa = Vehiculo::where('n_placa', $request->n_placa)->first();
+
+        if($placa){
+
+            $subtipo = DB::table('db_vehiculo_subtipo')->where('idsubtipo_vehiculo', $placa->idmodelo)->first();
+
+            $tipo = DB::table('db_vehiculo_tipo')->where('idtipo_vehiculo', $subtipo->id_tipo_vehiculo)->first();
+
+            $response_ = response()->json([
+                'data' => $placa,
+                'subtipo' => $subtipo,
+                'tipo' => $tipo,
+                'message' => 'BAD',
+                'status' => 100
+            ], 200);
+        }else{
+            $response_ = response()->json([
+                'data' => 'El vehiculo no fue registrado',
+                'message' => 'BAD',
+                'status' => 101
+            ], 200);
+        }
+
+        return $response_;
     }
 
     public function provincias($departamento_id)

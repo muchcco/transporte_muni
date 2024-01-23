@@ -131,6 +131,14 @@
                             <label class="required fs-6 fw-bold mb-2">Monto (en soles)</label>
                             <input type="text" class="form-control form-control-solid"  id="monto_recibo" name="monto_recibo" value="{{ $conductor->monto_recibo }}" >
                         </div>
+                        <div class="col-md-4 fv-row">
+                            <label class="required fs-6 fw-bold mb-2">N° del expediente N°</label>
+                            <input type="text" class="form-control form-control-solid"  id="n_expediente" name="n_expediente" value="{{ $conductor->expediente_doc }}" placeholder="0000-0000" >
+                        </div>
+                        <div class="col-md-4 fv-row">
+                            <label class="required fs-6 fw-bold mb-2">Fecha del registro del expediente</label>
+                            <input type="date" class="form-control form-control-solid"  id="fecha_expediente" name="fecha_expediente" value="{{ $conductor->fecha_registro }}" >
+                        </div>
                     </div>
                
             </form>

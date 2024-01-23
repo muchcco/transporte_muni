@@ -24,7 +24,8 @@
 		<style>
 			
 			.hasError{
-				border: 1px solid red !important;
+				border: 2px solid red !important;
+				color: red;
 			}
 
 			.table tbody th, .table thead th {

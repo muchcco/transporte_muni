@@ -41,6 +41,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/e_update' , [EmpresaController::class, 'e_update'])->name('e_update');
         Route::post('/e_delete' , [EmpresaController::class, 'e_delete'])->name('e_delete');
         Route::post('/foto_eliminar' , [EmpresaController::class, 'foto_eliminar'])->name('foto_eliminar'); // elimnar foto de perfil de la empresa
+        Route::post('/delete_empresa_flag' , [EmpresaController::class, 'delete_empresa_flag'])->name('delete_empresa_flag'); // elimnar foto de perfil de la empresa
 
         /* INGRESAMOS AL DETALLE DE LAS FLOTAS POR CADA EMPRESA */
         Route::group(['prefix'=>'flota','as'=>'flota.' ],function () {
@@ -57,6 +58,9 @@ Route::group(['middleware' => ['auth']], function () {
             Route::post('/modals/baja_flota' , [FlotaController::class, 'baja_flota'])->name('modals.baja_flota');
             Route::post('/store_baja' , [FlotaController::class, 'store_baja'])->name('store_baja');
             Route::post('/update_flota' , [FlotaController::class, 'update_flota'])->name('update_flota');
+            Route::post('/modals/md_tcirculacion' , [FlotaController::class, 'md_tcirculacion'])->name('modals.md_tcirculacion');
+            Route::post('/update_tcirculacion' , [FlotaController::class, 'update_tcirculacion'])->name('update_tcirculacion');
+            Route::post('/delete_tip_dato' , [FlotaController::class, 'delete_tip_dato'])->name('delete_tip_dato');
 
             Route::post('/add_vehiculo' , [FlotaController::class, 'add_vehiculo'])->name('add_vehiculo'); /// SE AÑADE EL ID DEL VEHICULO A LA TABLA BD_EMP_FLOTA
             
@@ -120,6 +124,7 @@ Route::group(['middleware' => ['auth']], function () {
 
     Route::post('/buscar_ruc' , [RecursosController::class, 'buscar_ruc'])->name('buscar_ruc');
     Route::post('/buscar_dni' , [RecursosController::class, 'buscar_dni'])->name('buscar_dni'); 
+    Route::post('/buscar_placa' , [RecursosController::class, 'buscar_placa'])->name('buscar_placa'); 
     Route::get('provincias/{departamento_id}', [RecursosController::class, 'provincias'])->name('provincias');
     Route::get('distritos/{provincia_id}', [RecursosController::class, 'distritos'])->name('distritos');
     Route::get('subtipo_vehiculo/{idsubtipo_vehiculo}', [RecursosController::class, 'subtipo_vehiculo'])->name('subtipo_vehiculo');

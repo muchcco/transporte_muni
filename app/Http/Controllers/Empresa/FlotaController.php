@@ -106,7 +106,24 @@ class FlotaController extends Controller
 
         $flota_empresa = Empresa::leftJoin('db_emp_flota', 'db_emp_flota.idempresa', '=', 'db_empresa.idempresa')->where('db_emp_flota.idflota', $idflota)->first();
 
-        // dd($flota_persona);
+        $dato = Flota::join('db_archivos_tcirculacion', 'db_archivos_tcirculacion.id_flota', '=', 'db_emp_flota.idflota')->join('db_desc_tcirculacion', 'db_desc_tcirculacion.iddesc_circulacion', '=', 'db_archivos_tcirculacion.iddesc_circulacion')->where('id_flota', $idflota)->where('db_archivos_tcirculacion.flag', 1)->get();
+        // dd($dato);
+
+        $desc_datos = DB::table('db_desc_tcirculacion')->get();
+
+        $count_archivos_dat = $dato->count();
+
+        $ultima_fecha_dato = Flota::join('db_archivos_tcirculacion', 'db_archivos_tcirculacion.id_flota', '=', 'db_emp_flota.idflota')->join('db_desc_tcirculacion', 'db_desc_tcirculacion.iddesc_circulacion', '=', 'db_archivos_tcirculacion.iddesc_circulacion')->where('id_flota', $idflota)->where('db_archivos_tcirculacion.flag', 1)->latest('db_archivos_tcirculacion.fecha_registro')->first();
+
+        if($ultima_fecha_dato){
+            $valor_1 = $ultima_fecha_dato->fecha_registro;
+            $valor_2 = $ultima_fecha_dato->fecha_caducidad;
+        }else{
+            $valor_1 = null;
+            $valor_2 = null;
+        }
+
+        // dd($dato);
         $idempresa = $flota_empresa->idempresa;
 
         $persona = Persona::where('idpersona',  $flota_persona->idpersona)->first();
@@ -147,7 +164,7 @@ class FlotaController extends Controller
 
         $tipo_dato = DB::table('db_vehiculo_tipo_dato')->get();
 
-        return view('empresa.flota.flota_vista', compact( 'idempresa', 'flota_empresa', 'flota_persona',  'vehiculo',  'marca_v', 'tipo_dato', 'archivos', 'persona'));
+        return view('empresa.flota.flota_vista', compact( 'idempresa', 'flota_empresa', 'flota_persona',  'vehiculo',  'marca_v', 'tipo_dato', 'archivos', 'persona', 'dato', 'desc_datos', 'count_archivos_dat', 'valor_1', 'valor_2'));
     }
 
     public function baja_flota(Request $request)
@@ -398,6 +415,73 @@ class FlotaController extends Controller
         $update->save();
 
         return $update;
+    }
+
+    public function md_tcirculacion(Request $request)
+    {
+        $flota = Flota::where('idflota', $request->idflota)->first();
+
+        $dato = Flota::leftJoin('db_archivos_tcirculacion', 'db_archivos_tcirculacion.id_flota', '=', 'db_emp_flota.idflota')->get();
+
+        $view = view('empresa.flota.modals.md_tcirculacion', compact('flota', 'dato'))->render();
+
+        return response()->json(['html' => $view]);
+    }
+
+    public function update_tcirculacion(Request $request)
+    {
+        // dd($request->all());
+
+        $flota = Flota::join('db_empresa', 'db_empresa.idempresa', '=', 'db_emp_flota.idempresa')->where('db_emp_flota.idflota', $request->idflota)->first();
+        
+        // dd($flota);
+
+        $estructura_carp = 'archivo\\empresa\\tarjeta_circulacion\\'.$flota->ruc.'\\'.$flota->correlativo;
+        
+        // dd($request->all());
+
+        if($request->hasFile('ruta'))
+        {
+            $archivoIMG = $request->file('ruta');
+            $nombreIMG = $archivoIMG->getClientOriginalName();
+            //$nameruta = '/img/fotoempresa/'; // RUTA DONDE SE VA ALMACENAR EL DOCUMENTO PDF
+            $nameruta = $estructura_carp;  // GUARDAR EN UN SERVIDOR
+            $archivoIMG->move($nameruta, $nombreIMG);
+
+            $nombre_archivo = $nombreIMG;
+
+            $nombre_ruta = $estructura_carp.'\\'.$nombreIMG;
+        }
+        // dd($nombre_ruta);
+
+        // Obtén la fecha actual
+        $fechaActual = Carbon::now();
+
+        // Aumenta un año a la fecha actual
+        $nuevaFecha = $fechaActual->addYear();
+
+        // Formatear la nueva fecha
+        $nuevaFechaFormateada = $nuevaFecha->format('Y-m-d');
+
+        $move = DB::table('db_archivos_tcirculacion')->insert([
+                                                                'id_flota'              =>      $request['idflota'],
+                                                                'fecha_registro'        =>      Carbon::now()->format('Y-m-d'),
+                                                                'fecha_caducidad'       =>      $nuevaFechaFormateada,
+                                                                'iddesc_circulacion'    =>      $request['iddesc_circulacion'],
+                                                                'nombre_archivo'        =>      $nombre_archivo,
+                                                                'ruta_archivo'          =>      $nombre_ruta,
+                                                                'flag'                  =>      1,
+                                                            ]);
+
+        return $move;
+
+    }
+
+    public function delete_tip_dato(Request $request)
+    {
+        $delete = DB::table('db_archivos_tcirculacion')->where('idarchivo_circulacion', $request->idarchivo_circulacion)->delete();
+
+        return $delete;
     }
     
 }

@@ -6,7 +6,19 @@
 
 
 <style>
+    #customFileInput {
+        display: inline-block;
+        padding: 8px 12px;
+        cursor: pointer;
+        background-color: #3498db;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+    }
 
+    #fileInput {
+        display: none;
+    }
 
 </style>
 
@@ -208,96 +220,103 @@
 
     var btnSaveVehiculo = () =>{
 
-        var idpersona = "{{ $persona->idpersona }}";
-        var idflota = "{{ $flota_empresa->idflota }}";
-        var n_placa = $("#n_placa").val();
+        if($("#subtipo").val()  == '0' || $("#subtipo").val()  == '' || $("#subtipo").val()  == null){
+            $('#subtipo').addClass("hasError");
+            console.log("no pasas");
+        }else{
+            var idpersona = "{{ $persona->idpersona }}";
+            var idflota = "{{ $flota_empresa->idflota }}";
+            var n_placa = $("#n_placa").val();
 
-        var formData = new FormData();    
-        formData.append("idpersona", idpersona);
-        formData.append("categoria", $("#categoria").val());
-        formData.append("subtipo", $("#subtipo").val());
-        formData.append("n_placa", $("#n_placa").val());
-        formData.append("combustible", $("#combustible").val());
-        formData.append("serie", $("#serie").val());
-        formData.append("color", $("#color").val());
-        formData.append("año_fabricacion", $("#año_fabricacion").val());
-        formData.append("n_asientos", $("#n_asientos").val());
-        formData.append("motor", $("#motor").val());
-        formData.append("carroceria", $("#carroceria").val());
-        formData.append("_token", $("#_token").val());
+            var formData = new FormData();    
+            formData.append("idpersona", idpersona);
+            formData.append("categoria", $("#categoria").val());
+            formData.append("subtipo", $("#subtipo").val());
+            formData.append("n_placa", $("#n_placa").val());
+            formData.append("combustible", $("#combustible").val());
+            formData.append("serie", $("#serie").val());
+            formData.append("color", $("#color").val());
+            formData.append("año_fabricacion", $("#año_fabricacion").val());
+            formData.append("n_asientos", $("#n_asientos").val());
+            formData.append("motor", $("#motor").val());
+            formData.append("carroceria", $("#carroceria").val());
+            formData.append("_token", $("#_token").val());
 
-        // Selector para mostrar el porcentaje
-        var porcentajeElemento = $('#porcentaje_b');
+            // Selector para mostrar el porcentaje
+            var porcentajeElemento = $('#porcentaje_b');
 
-        $.ajax({
-            type: "POST",
-            dataType: "json",
-            cache: false,
-            url: "{{ route('empresa.flota.store_vehiculo') }}",
-            data: formData,
-            processData: false,
-            contentType: false,
-            beforeSend: function () {
-                document.getElementById("btnEnviarForm").innerHTML = '<i class="fa fa-spinner fa-spin"></i> Cargando datos...';
-                document.getElementById("btnEnviarForm").disabled = true;
-                porcentajeElemento.text('0%');
-            },
-            xhr: function() {
-                var xhr = new window.XMLHttpRequest();
-                xhr.upload.addEventListener('progress', function(e) {
-                    if (e.lengthComputable) {
-                        // Calcula el porcentaje de progreso y actualiza el elemento
-                        var porcentaje = (e.loaded / e.total) * 100;
-                        porcentajeElemento.text(porcentaje.toFixed(2) + '%');
-                    }
-                }, false);
-                return xhr;
-            },
-            success: function(result){            
-                $("#modal_add_em").modal('hide');
-                $( "#vehiculo_div" ).load(window.location.href + " #vehiculo_div" );            
-                $( "#archivo_vehiculo_dat" ).load(window.location.href + " #archivo_vehiculo_dat" );
-                location.reload();
-                porcentajeElemento.text('100%');
+            $.ajax({
+                type: "POST",
+                dataType: "json",
+                cache: false,
+                url: "{{ route('empresa.flota.store_vehiculo') }}",
+                data: formData,
+                processData: false,
+                contentType: false,
+                beforeSend: function () {
+                    document.getElementById("btnEnviarForm").innerHTML = '<i class="fa fa-spinner fa-spin"></i> Cargando datos...';
+                    document.getElementById("btnEnviarForm").disabled = true;
+                    porcentajeElemento.text('0%');
+                },
+                xhr: function() {
+                    var xhr = new window.XMLHttpRequest();
+                    xhr.upload.addEventListener('progress', function(e) {
+                        if (e.lengthComputable) {
+                            // Calcula el porcentaje de progreso y actualiza el elemento
+                            var porcentaje = (e.loaded / e.total) * 100;
+                            porcentajeElemento.text(porcentaje.toFixed(2) + '%');
+                        }
+                    }, false);
+                    return xhr;
+                },
+                success: function(result){            
+                    $("#modal_add_em").modal('hide');
+                    $( "#vehiculo_div" ).load(window.location.href + " #vehiculo_div" );            
+                    $( "#archivo_vehiculo_dat" ).load(window.location.href + " #archivo_vehiculo_dat" );
+                    location.reload();
+                    porcentajeElemento.text('100%');
 
-                    toastr.options = {
-                        "closeButton": false,
-                        "debug": false,
-                        "newestOnTop": false,
-                        "progressBar": false,
-                        "positionClass": "toast-bottom-right",
-                        "preventDuplicates": false,
-                        "onclick": null,
-                        "showDuration": "300",
-                        "hideDuration": "1000",
-                        "timeOut": "5000",
-                        "extendedTimeOut": "1000",
-                        "showEasing": "swing",
-                        "hideEasing": "linear",
-                        "showMethod": "fadeIn",
-                        "hideMethod": "fadeOut"
-                    };
+                        toastr.options = {
+                            "closeButton": false,
+                            "debug": false,
+                            "newestOnTop": false,
+                            "progressBar": false,
+                            "positionClass": "toast-bottom-right",
+                            "preventDuplicates": false,
+                            "onclick": null,
+                            "showDuration": "300",
+                            "hideDuration": "1000",
+                            "timeOut": "5000",
+                            "extendedTimeOut": "1000",
+                            "showEasing": "swing",
+                            "hideEasing": "linear",
+                            "showMethod": "fadeIn",
+                            "hideMethod": "fadeOut"
+                        };
 
-                    toastr.info("El vehiculo se guardo con exito!", "Guardado:");
+                        toastr.info("El vehiculo se guardo con exito!", "Guardado:");
 
-                    // enviamos los datos para la actualizacion de la tb_emp_Flota del campo idvehiculo
-                $.ajax({
-                    type:'post',
-                    url: "{{ route('empresa.flota.add_vehiculo') }}",
-                    dataType: "json",
-                    data:{"_token": "{{ csrf_token() }}", idflota : idflota, n_placa : n_placa, idpersona : idpersona},
-                });
-                
-            },
-            error: function(jqxhr,textStatus,errorThrown){
-                console.log(jqxhr.responseJSON.error);
-                console.log(textStatus);
-                console.log(errorThrown);          
-                
-                document.getElementById("btnEnviarForm").innerHTML = 'ENVIAR';
-                document.getElementById("btnEnviarForm").disabled = false;
-            }
-        });
+                        // enviamos los datos para la actualizacion de la tb_emp_Flota del campo idvehiculo
+                    $.ajax({
+                        type:'post',
+                        url: "{{ route('empresa.flota.add_vehiculo') }}",
+                        dataType: "json",
+                        data:{"_token": "{{ csrf_token() }}", idflota : idflota, n_placa : n_placa, idpersona : idpersona},
+                    });
+                    
+                },
+                error: function(jqxhr,textStatus,errorThrown){
+                    console.log(jqxhr.responseJSON.error);
+                    console.log(textStatus);
+                    console.log(errorThrown);          
+                    
+                    document.getElementById("btnEnviarForm").innerHTML = 'ENVIAR';
+                    document.getElementById("btnEnviarForm").disabled = false;
+                }
+            });
+        }
+
+        
 
         
 
@@ -321,71 +340,73 @@
 
     var btnUpdateVehiculo = (idvehiculo) => {
 
+        if($("#subtipo").val()  == '0' || $("#subtipo").val()  == ''){
+            $('#subtipo').addClass("hasError");
+        }else{
+            var formData = new FormData();    
+            formData.append("idvehiculo", idvehiculo);
+            formData.append("categoria", $("#categoria").val());
+            formData.append("subtipo", $("#subtipo").val());
+            formData.append("n_placa", $("#n_placa").val());
+            formData.append("combustible", $("#combustible").val());
+            formData.append("serie", $("#serie").val());
+            formData.append("color", $("#color").val());
+            formData.append("año_fabricacion", $("#año_fabricacion").val());
+            formData.append("n_asientos", $("#n_asientos").val());
+            formData.append("motor", $("#motor").val());
+            formData.append("carroceria", $("#carroceria").val());
+            formData.append("_token", $("#_token").val());
 
-        var formData = new FormData();    
-        formData.append("idvehiculo", idvehiculo);
-        formData.append("categoria", $("#categoria").val());
-        formData.append("subtipo", $("#subtipo").val());
-        formData.append("n_placa", $("#n_placa").val());
-        formData.append("combustible", $("#combustible").val());
-        formData.append("serie", $("#serie").val());
-        formData.append("color", $("#color").val());
-        formData.append("año_fabricacion", $("#año_fabricacion").val());
-        formData.append("n_asientos", $("#n_asientos").val());
-        formData.append("motor", $("#motor").val());
-        formData.append("carroceria", $("#carroceria").val());
-        formData.append("_token", $("#_token").val());
+            // Selector para mostrar el porcentaje
 
-        // Selector para mostrar el porcentaje
+            $.ajax({
+                type: "POST",
+                dataType: "json",
+                cache: false,
+                url: "{{ route('empresa.flota.update_vehiculo') }}",
+                data: formData,
+                processData: false,
+                contentType: false,
+                beforeSend: function () {
+                    document.getElementById("btnEnviarForm").innerHTML = '<i class="fa fa-spinner fa-spin"></i> Cargando datos...';
+                    document.getElementById("btnEnviarForm").disabled = true;
+                },
+                success: function(result){            
+                    $("#modal_add_em").modal('hide');
+                    $( "#vehiculo_div" ).load(window.location.href + " #vehiculo_div" ); 
+                                    
+                    // porcentajeElemento.text('100%');
 
-        $.ajax({
-            type: "POST",
-            dataType: "json",
-            cache: false,
-            url: "{{ route('empresa.flota.update_vehiculo') }}",
-            data: formData,
-            processData: false,
-            contentType: false,
-            beforeSend: function () {
-                document.getElementById("btnEnviarForm").innerHTML = '<i class="fa fa-spinner fa-spin"></i> Cargando datos...';
-                document.getElementById("btnEnviarForm").disabled = true;
-            },
-            success: function(result){            
-                $("#modal_add_em").modal('hide');
-                $( "#vehiculo_div" ).load(window.location.href + " #vehiculo_div" ); 
-                                
-                // porcentajeElemento.text('100%');
+                        toastr.options = {
+                            "closeButton": false,
+                            "debug": false,
+                            "newestOnTop": false,
+                            "progressBar": false,
+                            "positionClass": "toast-bottom-right",
+                            "preventDuplicates": false,
+                            "onclick": null,
+                            "showDuration": "300",
+                            "hideDuration": "1000",
+                            "timeOut": "5000",
+                            "extendedTimeOut": "1000",
+                            "showEasing": "swing",
+                            "hideEasing": "linear",
+                            "showMethod": "fadeIn",
+                            "hideMethod": "fadeOut"
+                        };
 
-                    toastr.options = {
-                        "closeButton": false,
-                        "debug": false,
-                        "newestOnTop": false,
-                        "progressBar": false,
-                        "positionClass": "toast-bottom-right",
-                        "preventDuplicates": false,
-                        "onclick": null,
-                        "showDuration": "300",
-                        "hideDuration": "1000",
-                        "timeOut": "5000",
-                        "extendedTimeOut": "1000",
-                        "showEasing": "swing",
-                        "hideEasing": "linear",
-                        "showMethod": "fadeIn",
-                        "hideMethod": "fadeOut"
-                    };
-
-                    toastr.info("El vehiculo se guardo con exito!", "Guardado:");
-            },
-            error: function(jqxhr,textStatus,errorThrown){
-                console.log(jqxhr.responseJSON.error);
-                console.log(textStatus);
-                console.log(errorThrown);          
-                
-                document.getElementById("btnEnviarForm").innerHTML = 'ENVIAR';
-                document.getElementById("btnEnviarForm").disabled = false;
-            }
-        });
-
+                        toastr.info("El vehiculo se guardo con exito!", "Guardado:");
+                },
+                error: function(jqxhr,textStatus,errorThrown){
+                    console.log(jqxhr.responseJSON.error);
+                    console.log(textStatus);
+                    console.log(errorThrown);          
+                    
+                    document.getElementById("btnEnviarForm").innerHTML = 'ENVIAR';
+                    document.getElementById("btnEnviarForm").disabled = false;
+                }
+            });
+        }
     }
 
     /* =================================================================== VALIDAR INPUT DE CARGA =================================================================== */
@@ -503,7 +524,7 @@
 
     }
 
-    var btnDeleteArchivo = (idvehiculo_archivo) => {
+    var btnDeleteArchivo = (idarchivo_circulacion) => {
 
         swal.fire({
             title: "Seguro que desea eliminar el archivo?",
@@ -515,9 +536,9 @@
         }).then((result) => {
             if (result.value) {
                 $.ajax({
-                    url: "{{ route('conductor.delete_tip_dato') }}",
+                    url: "{{ route('empresa.flota.delete_tip_dato') }}",
                     type: 'post',
-                    data: {"_token": "{{ csrf_token() }}", idvehiculo_archivo: idvehiculo_archivo},
+                    data: {"_token": "{{ csrf_token() }}", idarchivo_circulacion: idarchivo_circulacion},
                     success: function(response){
                         console.log(response);
 
@@ -625,8 +646,53 @@
 
     }
 
+    var btnEditTCirculacion = (idflota) => {
 
+        $.ajax({
+            type:'post',
+            url: "{{ route('empresa.flota.modals.md_tcirculacion') }}",
+            dataType: "json",
+            data:{"_token": "{{ csrf_token() }}", idflota : idflota},
+            success:function(data){
+                $("#modal_add_em").html(data.html);
+                $("#modal_add_em").modal('show');
+            }
+        });
+    }    
     
+    var handleFileChange = () => {
+        // Aquí puedes realizar acciones cuando se selecciona un archivo, si es necesario
+
+        var formData = new FormData();   
+        var file_data = $("#ruta").prop("files")[0];
+        formData.append("ruta", file_data); 
+        formData.append("idflota", "{{ $flota_persona->idflota }}");
+        formData.append("iddesc_circulacion", $("#iddesc_circulacion").val());
+        formData.append("_token", $("#_token").val());
+
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            cache: false,
+            url: "{{ route('empresa.flota.update_tcirculacion') }}",
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(result){            
+                $( "#act_tcirculacion" ).load(window.location.href + " #act_tcirculacion" ); 
+                $( "#archivos_body" ).load(window.location.href + " #archivos_body" );
+            },
+            error: function(jqxhr,textStatus,errorThrown){
+                console.log(jqxhr.responseJSON.error);
+                console.log(textStatus);
+                console.log(errorThrown);          
+                
+                document.getElementById("btnEnviarForm").innerHTML = 'ENVIAR';
+                document.getElementById("btnEnviarForm").disabled = false;
+            }
+        });
+    }
+ 
 
 </script>
 @endif
@@ -650,52 +716,52 @@ var btnAgregarPersona = (idempresa, idflota) =>{
 
 var btnStoreFlota = () => {
 
-var idflota = "{{ $flota_empresa->idflota }}";
+    var idflota = "{{ $flota_empresa->idflota }}";
 
-var formData = new FormData();
-formData.append("idflota", idflota);
-formData.append("tipo_documento", $("#tipo_documento").val());
-formData.append("dni", $("#dni").val());
-formData.append("ruc", $("#ruc").val());
-formData.append("nombre", $("#nombre").val());
-formData.append("ape_pat", $("#ape_pat").val());
-formData.append("ape_mat", $("#ape_mat").val());
-formData.append("sexo", $("#sexo").val());
-formData.append("direccion", $("#direccion").val());
-formData.append("correo", $("#correo").val());
-formData.append("distrito", $("#distrito").val());
-formData.append("dir_referencia", $("#dir_referencia").val());
-formData.append("celular", $("#celular").val());
-formData.append("_token", $("#_token").val());
+    var formData = new FormData();
+    formData.append("idflota", idflota);
+    formData.append("tipo_documento", $("#tipo_documento").val());
+    formData.append("dni", $("#dni").val());
+    formData.append("ruc", $("#ruc").val());
+    formData.append("nombre", $("#nombre").val());
+    formData.append("ape_pat", $("#ape_pat").val());
+    formData.append("ape_mat", $("#ape_mat").val());
+    formData.append("sexo", $("#sexo").val());
+    formData.append("direccion", $("#direccion").val());
+    formData.append("correo", $("#correo").val());
+    formData.append("distrito", $("#distrito").val());
+    formData.append("dir_referencia", $("#dir_referencia").val());
+    formData.append("celular", $("#celular").val());
+    formData.append("_token", $("#_token").val());
 
-$.ajax({
-    type: "POST",
-    dataType: "json",
-    cache: false,
-    url: "{{ route('empresa.flota.update_flota') }}",
-    data: formData,
-    processData: false,
-    contentType: false,
-    beforeSend: function () {
-        document.getElementById("btnEnviarForm").innerHTML = '<i class="fa fa-spinner fa-spin"></i> ESPERE';
-        document.getElementById("btnEnviarForm").disabled = true;
-    },
-    success: function(response){       
-        $("#modal_add_em").modal('hide');     
-        $( "#kt_content_container" ).load(window.location.href + " #kt_content_container" );
-        window.location = window.location;
-             
-        
-    },
-    error: function(jqxhr,textStatus,errorThrown){
-        console.log(jqxhr.responseJSON.error);
-        console.log(textStatus);
-        console.log(errorThrown);          
-        
-        document.getElementById("btnEnviarForm").innerHTML = 'ENVIAR';
-        document.getElementById("btnEnviarForm").disabled = false;
-    }
-});
+    $.ajax({
+        type: "POST",
+        dataType: "json",
+        cache: false,
+        url: "{{ route('empresa.flota.update_flota') }}",
+        data: formData,
+        processData: false,
+        contentType: false,
+        beforeSend: function () {
+            document.getElementById("btnEnviarForm").innerHTML = '<i class="fa fa-spinner fa-spin"></i> ESPERE';
+            document.getElementById("btnEnviarForm").disabled = true;
+        },
+        success: function(response){       
+            $("#modal_add_em").modal('hide');     
+            $( "#kt_content_container" ).load(window.location.href + " #kt_content_container" );
+            window.location = window.location;
+                
+            
+        },
+        error: function(jqxhr,textStatus,errorThrown){
+            console.log(jqxhr.responseJSON.error);
+            console.log(textStatus);
+            console.log(errorThrown);          
+            
+            document.getElementById("btnEnviarForm").innerHTML = 'ENVIAR';
+            document.getElementById("btnEnviarForm").disabled = false;
+        }
+    });
 
 
 }
@@ -804,6 +870,45 @@ $.ajax({
                                         <!--begin::Details item-->
                                         <div class="fw-bolder mt-5">Teléfono</div>
                                         <div class="text-gray-600">{{ $persona->celular }}</div>
+                                        <!--begin::Details item-->
+                                    </div>
+                                </div>
+                                <!--end::Details content-->
+                                <!--begin::Details toggle-->
+                                <div class="d-flex flex-stack fs-4 py-3">
+                                    <div class="fw-bolder rotate collapsible" data-bs-toggle="collapse" href="#kt_renovacion_view_details" role="button" aria-expanded="false" aria-controls="kt_renovacion_view_details">Renovación de tarjeta de circulación
+                                    <span class="ms-2 rotate-180">
+                                        <!--begin::Svg Icon | path: icons/duotune/arrows/arr072.svg-->
+                                        <span class="svg-icon svg-icon-3">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                                <path d="M11.4343 12.7344L7.25 8.55005C6.83579 8.13583 6.16421 8.13584 5.75 8.55005C5.33579 8.96426 5.33579 9.63583 5.75 10.05L11.2929 15.5929C11.6834 15.9835 12.3166 15.9835 12.7071 15.5929L18.25 10.05C18.6642 9.63584 18.6642 8.96426 18.25 8.55005C17.8358 8.13584 17.1642 8.13584 16.75 8.55005L12.5657 12.7344C12.2533 13.0468 11.7467 13.0468 11.4343 12.7344Z" fill="black"></path>
+                                            </svg>
+                                        </span>
+                                        <!--end::Svg Icon-->
+                                    </span></div>
+                                    {{-- <span data-bs-toggle="tooltip" data-bs-trigger="hover" title="" data-bs-original-title="Edit customer details">
+                                        <button type="button" class="btn btn-sm btn-light-primary" data-toggle="modal" data-target="#large-Modal"  onclick="btnEditTCirculacion('{{ $flota_persona->idflota  }}')">Editar</button>
+                                    </span> --}}
+                                </div>
+                                <!--end::Details toggle-->
+                                <div class="separator"></div>
+                                <!--begin::Details content-->
+                                <div id="kt_renovacion_view_details" class="collapse show">
+                                    <div class="pb-5 fs-6" id="act_tcirculacion">
+                                        <div id="porcentaje"></div>
+                                        <!--begin::Details item-->
+                                        <div class="fw-bolder mt-5">Fecha de registro</div>
+                                        <div class="text-gray-600">{{ $valor_1 }}</div>
+                                        <!--begin::Details item-->
+                                        <!--begin::Details item-->
+                                        <div class="fw-bolder mt-5">Fecha de caducidad</div>
+                                        <div class="text-gray-600">
+                                            <a href="#" class="text-gray-600 text-hover-primary">{{ $valor_2 }}</a>
+                                        </div>
+                                        <!--begin::Details item-->
+                                        <!--begin::Details item-->
+                                        <div class="fw-bolder mt-5">Archivos adjuntados</div>
+                                        <div class="text-gray-600">{{ $count_archivos_dat }} / 8</div>
                                         <!--begin::Details item-->
                                     </div>
                                 </div>
@@ -928,7 +1033,7 @@ $.ajax({
                                                     </tr>
                                                     <tr>
                                                         <th>MARCA:</th>
-                                                        <th>{{ $marca_v->name_marca }}</th>
+                                                        <th>{{ $marca_v->name_marca ? ' - ' : '' }}</th>
                                                         <th>AÑO DE FABRICACION:</th>
                                                         <th>{{ $vehiculo->año_fabricacion }}</th>
                                                     </tr>
@@ -954,7 +1059,7 @@ $.ajax({
                                 <div class="card card-flush mb-6 mb-xl-9">
                                     <div class="card-header mt-6">
                                         <div class="card-title flex-column">
-                                            <h2 class="mb-1">Adjuntar Archivos</h2>
+                                            <h2 class="mb-1">Adjuntar Archivos para la sustentacion de la tarjeta de circulación</h2>
                                             <div class="fs-6 fw-bold text-muted">Subir los documentos sustentatorios en formato digital</div>
                                         </div>
                                         <div class="card-body p-9 pt-4">
@@ -994,21 +1099,22 @@ $.ajax({
                                                 @else
                                                     <div class="row g-7 mb-6">
                                                         <div class="col-md-6 fv-row">
-                                                            <label class="required fs-6 fw-bold mb-2">Fecha Expedición</label>
+                                                            <label class="required fs-6 fw-bold mb-2">Fecha de Registro</label>
                                                             <input type="hidden" name="_token" id="_token" value="{{ csrf_token() }}" /> 
                                                             <input type="date" class="form-control form-control-solid" id="fecha_exp" name="fecha_exp">
                                                         </div>
                                                         <div class="col-md-6 fv-row">
-                                                            <label class="required fs-6 fw-bold mb-2">Fecha vencimiento</label>
-                                                            <input type="date" class="form-control form-control-solid" id="fecha_vence" name="fecha_vence">
+                                                            <label class="required fs-6 fw-bold mb-2">Fecha de caducidad</label>
+                                                            <input type="date" class="form-control form-control-solid" id="fecha_vence" name="fecha_vence" disabled>
                                                         </div>
                                                     </div>
                                                     <div class="row g-7 mb-6">
                                                         <div class="col-md-6 fv-row">
                                                             <label class="required fs-6 fw-bold mb-2">Tipo de ingreso</label>
-                                                            <select class="form-select form-select-solid" name="idtipo_dato" id="idtipo_dato" >
-                                                                @foreach ($tipo_dato as $f)
-                                                                    <option value="{{ $f->idtipo_dato }}">{{ $f->descripcion }}</option>
+                                                            <select class="form-select form-select-solid" name="iddesc_circulacion" id="iddesc_circulacion" >
+                                                                <option value="" selected disabled>-- SELECCIONAR UNA OPCION --</option>
+                                                                @foreach ($desc_datos as $desc)
+                                                                    <option value="{{ $desc->iddesc_circulacion }}"> {{  Illuminate\Support\Str::limit($desc->descripcion, 50) }}</option>
                                                                 @endforeach
                                                             </select>
                                                         </div>                                        
@@ -1020,7 +1126,7 @@ $.ajax({
                                                     <div class="row g-7 mb-6">
                                                         <div class="col-md-12 fv-row " >
                                                             <div class="d-grid gap-2">
-                                                                <button class="btn btn-primary btn-sm"  id="cargadar_dato" onclick="btnCargarArchivos('{{ $vehiculo->idvehiculo }}')">
+                                                                <button class="btn btn-primary btn-sm"  id="cargadar_dato" onclick="handleFileChange()">
                                                                     <i class="fa fa-regular fa-upload" style="color: #ffffff;"></i>
                                                                     Cargar 
                                                                 </button>
@@ -1034,28 +1140,27 @@ $.ajax({
                                                                 <thead class="bg-dark">
                                                                     <tr>
                                                                         <th class="text-white">N°</th>
-                                                                        <th class="text-white">Tipo</th>
-                                                                        <th class="text-white">Fecha de Vencimiento</th>
-                                                                        <th class="text-white">Descargar Archivo</th>
-                                                                        <th class="text-white">Acciones</th>
+                                                                        <th class="text-white">Nombre del documento</th>
+                                                                        <th class="text-white">Carga de documento</th>
+                                                                        <th class="text-white">Ver documento</th>
+                                                                        <th class="text-white">Eliminar archivo</th>
                                                                     </tr>
                                                                 </thead>
                                                                 <tbody >
-                                                                    @forelse ($archivos as $i => $arc)
+                                                                    @forelse ($dato as $i => $arc)
                                                                         <tr>
                                                                             <th>{{ $i + 1 }}</th>
                                                                             <th>{{ $arc->descripcion }}</th>
-                                                                            <th>{{ $arc->fecha_vencimiento }}</th>
+                                                                            <th>{{ $arc->fecha_registro }}</th>
                                                                             <th class="text-center">
-                                                                                <a href="{{ asset($arc->ruta) }}" target="_blank" class="modal-tooglee" data-tippy-content="Descargar documento" >
+                                                                                <a href="{{ asset($arc->ruta_archivo) }}" target="_blank" class="modal-tooglee" data-tippy-content="Descargar documento" >
                                                                                     <i class="fa fa-solid fa-download text-primary"></i>
                                                                                 </a>
                                                                             </th>
                                                                             <th>
-                                                                                <button class="btn btn-sm  modal-tooglee" data-tippy-content="Eliminar dato vehicular" onclick="btnDeleteArchivo('{{ $arc->idvehiculo_archivo }}')">
+                                                                                <button class="btn btn-sm  modal-tooglee" data-tippy-content="Eliminar dato vehicular" onclick="btnDeleteArchivo('{{ $arc->idarchivo_circulacion }}')">
                                                                                     <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><style>svg{fill:#ad0000}</style><path d="M135.2 17.7L128 32H32C14.3 32 0 46.3 0 64S14.3 96 32 96H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H320l-7.2-14.3C307.4 6.8 296.3 0 284.2 0H163.8c-12.1 0-23.2 6.8-28.6 17.7zM416 128H32L53.2 467c1.6 25.3 22.6 45 47.9 45H346.9c25.3 0 46.3-19.7 47.9-45L416 128z"/></svg>
-                                                                                </button>
-                                                                                
+                                                                                </button>                                                                                
                                                                             </th>
                                                                         </tr>
                                                                     @empty

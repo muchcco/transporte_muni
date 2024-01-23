@@ -207,4 +207,11 @@ class EmpresaController extends Controller
         return $borrar_foto;
 
     }
+
+    public function delete_empresa_flag(Request $request)
+    {
+        $delete = Empresa::where('idempresa', $request->idempresa)->delete();
+
+        return $delete;
+    }
 }

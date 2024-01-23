@@ -34,7 +34,7 @@
                         </div>
                         <div class="col-md-4 fv-row">
                             <label class="required fs-6 fw-bold mb-2">Modelo</label>
-                            <select class="form-select form-select-solid" name="subtipo" id="subtipo" >
+                            <select class="form-select form-select-solid " name="subtipo" id="subtipo">
                                 <option value="{{ $tipo_select->idsubtipo_vehiculo }}"   >{{ $tipo_select->name_modelo }}</option>
                             </select>
                         </div>

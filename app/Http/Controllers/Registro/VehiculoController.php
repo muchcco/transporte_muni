@@ -25,7 +25,7 @@ class VehiculoController extends Controller
         $data = DB::table('db_vehiculo as v')
                             ->select('v.*', 'p.*', DB::raw('IFNULL(count_emp, "0") AS afiliado'))
                             ->leftJoin('db_persona as p', 'p.idpersona', '=', 'v.idpersona')
-                            ->leftJoin(DB::raw('(SELECT idflota, idpersona, idvehiculo, COUNT(*) AS count_emp FROM db_emp_flota GROUP BY idflota, idpersona) as f'), 'f.idvehiculo', '=', 'v.idvehiculo')
+                            ->leftJoin(DB::raw('(SELECT idflota, idpersona, idvehiculo, COUNT(*) AS count_emp FROM db_emp_flota GROUP BY idflota, idpersona, idvehiculo) as f'), 'f.idvehiculo', '=', 'v.idvehiculo')
                             ->whereNotNull('v.n_padron')
                             ->where('v.flag', 1)
                             ->get();
@@ -68,41 +68,44 @@ class VehiculoController extends Controller
 
             $persona_id = Persona::where('dni', $request->dni)->first();
             $vehiculo = Vehiculo::where('n_placa', $request->n_placa)->first();
-        //    dd($persona_id);
+            // dd($persona_id);
             
-            // dd("sad");
+            // dd("SI EXISTE UNA PERSONA");
             if(isset($persona_id)){
-                if( $vehiculo->idpersona == $persona_id->idpersona && $vehiculo->n_placa == $request->n_placa && $vehiculo->n_padron != NULL ){
-                
-                    $response_ = response()->json([
-                        'data' => null,
-                        'message' => 'El vehículo ya fue registrado',
-                        'status' => '210'
-                    ], 200);
-    
-                    return $response_;
-    
-                }elseif($vehiculo->idpersona != $persona_id->idpersona && $vehiculo->n_placa == $request->n_placa){
-    
-                    $vehi = Vehiculo::join('db_persona', 'db_persona.idpersona', '=', 'db_vehiculo.idpersona')->where('db_vehiculo.idpersona', $vehiculo->idpersona)->first();
-    
-                    $response_ = response()->json([
-                        'data' => null,
-                        'message' => "El vehículo pertence la persona " . $vehi->nombre . ' ' . $vehi->apellido_pat . ' ' .  $vehi->apellido_mat,
-                        'status' => '210'
-                    ], 200);
-    
-                    return $response_;
-                }elseif($vehiculo->flag = 0 ){
-                    $save = Vehiculo::findOrFail($vehiculo->idvehiculo);
-                    $save->flag = 1;
-                    $save->save();
 
-                    return $save;
+                if($vehiculo){
+                    if( $vehiculo->idpersona == $persona_id->idpersona && $vehiculo->n_placa == $request->n_placa && $vehiculo->n_padron != NULL ){
+                    
+                        $response_ = response()->json([
+                            'data' => null,
+                            'message' => 'El vehículo ya fue registrado',
+                            'status' => '210'
+                        ], 200);
+        
+                        return $response_;
+        
+                    }elseif($vehiculo->idpersona != $persona_id->idpersona && $vehiculo->n_placa == $request->n_placa){
+        
+                        $vehi = Vehiculo::join('db_persona', 'db_persona.idpersona', '=', 'db_vehiculo.idpersona')->where('db_vehiculo.idpersona', $vehiculo->idpersona)->first();
+        
+                        $response_ = response()->json([
+                            'data' => null,
+                            'message' => "El vehículo pertence la persona " . $vehi->nombre . ' ' . $vehi->apellido_pat . ' ' .  $vehi->apellido_mat,
+                            'status' => '210'
+                        ], 200);
+        
+                        return $response_;
+                    }elseif($vehiculo->flag = 0 ){
+                        $save = Vehiculo::findOrFail($vehiculo->idvehiculo);
+                        $save->flag = 1;
+                        $save->save();
+
+                        return $save;
+                    }
                 }
                 // dd("sad");
                 if(isset($vehiculo)){
-
+                    // dd($persona_id);
                     $save = Vehiculo::findOrFail($vehiculo->idvehiculo);
                     $save->n_padron = $codpadron;
                     $save->flag = 1;
@@ -256,6 +259,7 @@ class VehiculoController extends Controller
         $update->n_recibo = $request->n_recibo;
         $update->fecha_recibo = $request->fecha_recibo;
         $update->monto_recibo = $request->monto_recibo;
+        // dd($update);
         $update->save();
 
         return $update;

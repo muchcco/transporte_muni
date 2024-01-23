@@ -24,6 +24,8 @@ class Conductor extends Model
                             'mes',
                             'monto_recibo',
                             'año',
+                            'expediente_doc',
+                            'fecha_registro',
                             'pago_padron',
                             'nota_conductor',
                             'n_recibo',

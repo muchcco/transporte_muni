@@ -17,6 +17,14 @@
                     <br />
                     <h5>Datos del vehiculo asignado al conductor - {{ $persona->apellido_pat }} {{ $persona->apellido_mat }}, {{ $persona->nombre }}</h5>
                         <br />
+                    
+                    <div class="row g-7 mb-6">
+                        
+                        <div class="col-md-4 fv-row">
+                            <label class="required fs-6 fw-bold mb-2">N° de Placa</label>
+                            <input type="text" class="form-control form-control-solid" id="n_placa" name="n_placa"  oninput="convertirAMayusculas(this)" >
+                        </div>
+                    </div>
 
                     <div class="row g-7 mb-6">
                         <div class="col-md-4 fv-row">
@@ -34,16 +42,12 @@
                         </div>
                         <div class="col-md-4 fv-row">
                             <label class="required fs-6 fw-bold mb-2">Modelo</label>
-                            <select class="form-select form-select-solid" name="subtipo" id="subtipo" >
+                            <select class="form-select form-select-solid " name="subtipo" id="subtipo" >
                                 <option value="0" disabled selected>-- SELECCIONE UNA OPCION --</option>
                             </select>
                         </div>
                     </div>
                     <div class="row g-7 mb-6">
-                        <div class="col-md-4 fv-row">
-                            <label class="required fs-6 fw-bold mb-2">N° de Placa</label>
-                            <input type="text" class="form-control form-control-solid" id="n_placa" name="n_placa"  oninput="convertirAMayusculas(this)">
-                        </div>
                         <div class="col-md-4 fv-row">
                             <label class="required fs-6 fw-bold mb-2 ">Combustible</label>
                             <input type="text" class="form-control form-control-solid"  id="combustible" name="combustible"  oninput="convertirAMayusculas(this)">
@@ -110,6 +114,59 @@ $(document).ready(function() {
         } else {
             $('#subtipo').empty();
         }
+    });
+
+    $('#n_placa').on('change', function(){
+        var n_placa = $(this).val();
+
+        $.ajax({
+            type: 'POST',
+            url: "{{ route('buscar_placa') }}", 
+            data: {"_token": "{{ csrf_token() }}", n_placa: n_placa},
+            success: function(response) {
+                // $('#subtipo').html(response);
+                console.log(response);
+
+                if(response["status"] == 100) {
+                    document.getElementById('categoria').value = response.data.cat_clase;
+
+                    var tipo = document.getElementById('tipo');
+                    // document.getElementById('tipo').value = response.data.idmodelo;
+                    if (tipo && response.tipo) {
+                        tipo.options[0].textContent = response.tipo.nombre;
+                    } else {
+                        console.error('Elemento select no encontrado o respuesta incorrecta.');
+                    }
+
+                    var subtipo = document.getElementById('subtipo');
+                    if (subtipo && response.subtipo && subtipo.options.length > 0) {
+                        subtipo.options[0].textContent = response.subtipo.nombre;
+                        var optionZero = subtipo.querySelector('option[value="0"]');    
+                        if (optionZero) {
+                            optionZero.textContent = response.subtipo.nombre;
+                            optionZero.value = response.subtipo.idsubtipo_vehiculo;
+                            optionZero.removeAttribute('disabled');
+                            optionZero.removeAttribute('selected');
+                        } else {
+                            console.error('Opción con value="0" no encontrada.');
+                        }
+                    } else {
+                        console.error('Elemento select no encontrado, respuesta incorrecta o opciones ausentes.');
+                    }
+
+
+                    document.getElementById('combustible').value = response.data.combustible;
+                    document.getElementById('serie').value = response.data.serie;
+                    document.getElementById('color').value = response.data.color;
+                    document.getElementById('año_fabricacion').value = response.data.año_fabricacion;
+                    document.getElementById('n_asientos').value = response.data.n_asientos;
+                    document.getElementById('motor').value = response.data.motor;
+                    document.getElementById('carroceria').value = response.data.carroceria;
+                }
+                
+                
+            }
+        });
     });
 });
 

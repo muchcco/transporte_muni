@@ -243,6 +243,8 @@ class ConductorController extends Controller
         $update->n_recibo = $request->n_recibo;
         $update->fecha_recibo = $request->fecha_recibo;
         $update->monto_recibo = $request->monto_recibo;
+        $update->expediente_doc = $request->n_expediente;
+        $update->fecha_registro = $request->fecha_expediente;
         $update->fecha_expedicion_brevete = $request->fecha_expedicion_brevete;
         $update->fecha_vencimiento_brevete = $request->fecha_vencimiento_brevete;
         if($request->hasFile('foto_conductor'))

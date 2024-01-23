@@ -79,7 +79,7 @@
     <section>
         <center><strong>EMPADRONAMIENTO DEL CONDUCTOR</strong></center>
         <br />
-        <P>Visto el Exp. Adm. Nº 15710-2021, de fecha 01 de SETIEMBRE de 2021 presentado por el (la) SR(a).  {{ $persona->apellido_pat }} {{ $persona->apellido_mat }}, {{ $persona->nombre }} Identificado con DNI. N° {{ $persona->dni }}, Domiciliado en {{ $persona->direccion }}; Distrito {{ $dep_persona->name_dist }}, Provincia {{ $dep_persona->name_prov }} y Departamento de {{ $dep_persona->name_dep }}, el cual solicita el EMPADRONAMIENTO DE CONDUCTOR, revisado los documentos adjuntos al presente se deja Constancia de lo siguiente:	</P>
+        <P>Visto el Exp. Adm. Nº {{ $conductor->expediente_doc }}, de fecha <?php setlocale(LC_TIME, 'es_PE', 'Spanish_Spain', 'Spanish'); echo strftime('%d de %B del %Y',strtotime($conductor->fecha_registro));  ?> presentado por el (la) SR(a).  {{ $persona->apellido_pat }} {{ $persona->apellido_mat }}, {{ $persona->nombre }} Identificado con DNI. N° {{ $persona->dni }}, Domiciliado en {{ $persona->direccion }}; Distrito {{ $dep_persona->name_dist }}, Provincia {{ $dep_persona->name_prov }} y Departamento de {{ $dep_persona->name_dep }}, el cual solicita el EMPADRONAMIENTO DE CONDUCTOR, revisado los documentos adjuntos al presente se deja Constancia de lo siguiente:	</P>
             <br />
             <table class="table table-bordered table-head">
                 <tr>
@@ -106,11 +106,11 @@
                 </tr>
                 <tr>
                     <th>Nº DE CELULAR:</th>
-                    <th colspan="3">{{ $conductor->celular }}</th>
+                    <th colspan="3">{{ $persona->celular }}</th>
                 </tr>
             </table>
             <br />
-            <p>Se expide el presente a solicitud escrita del interesado, debiendo cancelar en Caja de la Municipalidad Provincial de Huancavelica la suma de S/. 10.00 (DIEZ Y 00/  SOLES) por dicho concepto. </p>
+            <p>Se expide el presente a solicitud escrita del interesado, debiendo cancelar en Caja de la Municipalidad Provincial de Huancavelica la suma de S/. {{ $conductor->monto_recibo }} (DIEZ Y 00/  SOLES) por dicho concepto. </p>
     </section>
 
 

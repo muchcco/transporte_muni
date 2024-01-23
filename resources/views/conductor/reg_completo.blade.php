@@ -270,7 +270,9 @@ var btnSaveConductor = (idconductor) => {
     formData.append("idcategoria_licencia", $("#idcategoria_licencia").val());
     formData.append("n_brevete", $("#n_brevete").val());
     formData.append("n_recibo", $("#n_recibo").val());
+    formData.append("n_expediente", $("#n_expediente").val());
     formData.append("fecha_recibo", $("#fecha_recibo").val());
+    formData.append("fecha_expediente", $("#fecha_expediente").val());
     formData.append("fecha_expedicion_brevete", $("#fecha_expedicion_brevete").val());
     formData.append("fecha_vencimiento_brevete", $("#fecha_vencimiento_brevete").val());
     formData.append("_token", $("#_token").val());

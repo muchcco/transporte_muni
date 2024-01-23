@@ -282,8 +282,8 @@ var btnUpdateEmpresa = (id) => {
     });
 }
 
-var EliminarEmpresa = (id) => {
-
+var EliminarEmpresa = (idempresa) => {
+    
     swal.fire({
         title: "Seguro que desea eliminar la empresa?",
         text: "La empresa y su flota será eliminado",
@@ -294,9 +294,9 @@ var EliminarEmpresa = (id) => {
     }).then((result) => {
         if (result.value) {
             $.ajax({
-                url: "{{ route('empresa.e_delete') }}",
+                url: "{{ route('empresa.delete_empresa_flag') }}",
                 type: 'post',
-                data: {"_token": "{{ csrf_token() }}", id: id},
+                data: {"_token": "{{ csrf_token() }}", idempresa: idempresa},
                 success: function(response){
                     tabla_seccion();
                     Swal.fire({ 
