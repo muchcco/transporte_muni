@@ -193,6 +193,36 @@ var btnStoreConductor = () => {
 
 }
 
+
+var EliminarConductor = (idconductor) => {
+    swal.fire({
+        title: "Seguro que desea eliminar el registro?",
+        text: "El registro será eliminado",
+        icon: "info",
+        showCancelButton: !0,
+        confirmButtonText: "Aceptar",
+        cancelButtonText: "Cancelar"
+    }).then((result) => {
+        if (result.value) {
+            $.ajax({
+                url: "{{ route('conductor.delete_conductor') }}",
+                type: 'post',
+                data: {"_token": "{{ csrf_token() }}", idconductor: idconductor},
+                success: function(response){
+                    tabla_seccion();
+                    Swal.fire({ 
+                        title: "Eliminado!",
+                        icon: "success",
+                        text: "El registro fue eliminado del sistema",
+                        confirmButtonText: "Aceptar"
+                    });
+                }
+            });
+        }
+
+    })
+}
+
 </script>
     
 @endsection

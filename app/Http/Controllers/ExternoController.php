@@ -23,7 +23,10 @@ class ExternoController extends Controller
 
     public function search_vehiculo(Request $request)
     {
+        // dd($request->all());
         $datos_vehiculo = Vehiculo::where('n_placa', $request->n_placa)->first();
+
+        // dd($datos_vehiculo);
 
         if($datos_vehiculo == 'null' || !$datos_vehiculo)
         {

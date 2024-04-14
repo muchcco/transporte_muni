@@ -70,8 +70,26 @@ class FlotaController extends Controller
             $correl = $n_corr->correlativo + 1;
         }
 
-        $persona = Persona::where('dni', $request->dni)->first();
+        if($request->dni == null){
+            $flota =  new Flota;
+            $flota->idempresa = $request->idempresa;
+            $flota->idpersona = null;
+            // $flota->idvehiculo = $idvehiculo;
+            $flota->flag = 1;
+            $flota->correlativo = $correl;
+            $flota->save();
 
+            $response_ = response()->json([
+                'data' => null,
+                'message' => "No ingresara al registro sin ingresar los datos del responsable",
+                'status' => 201,
+            ], 200);
+
+            return $response_;  
+        }
+
+        $persona = Persona::where('dni', $request->dni)->first();
+        
         if(!isset($persona)){
             $persona = new Persona;
             $persona->dni = $request->dni;
@@ -127,7 +145,6 @@ class FlotaController extends Controller
         $idempresa = $flota_empresa->idempresa;
 
         $persona = Persona::where('idpersona',  $flota_persona->idpersona)->first();
-        
 
         if($flota_empresa->idpersona !== null && $flota_empresa->idvehiculo !== null){
                 
@@ -165,6 +182,75 @@ class FlotaController extends Controller
         $tipo_dato = DB::table('db_vehiculo_tipo_dato')->get();
 
         return view('empresa.flota.flota_vista', compact( 'idempresa', 'flota_empresa', 'flota_persona',  'vehiculo',  'marca_v', 'tipo_dato', 'archivos', 'persona', 'dato', 'desc_datos', 'count_archivos_dat', 'valor_1', 'valor_2'));
+    }
+
+    public function md_edit_persona(Request $request)
+    {
+        $persona = Persona::where('idpersona', $request->idpersona)->first();
+
+        $departamentos = DB::table('ubigeo_peru_departments')->get();
+
+        $dep_persona = DB::table('ubigeo_peru_districts')
+                            ->join('ubigeo_peru_provinces', 'ubigeo_peru_provinces.id', '=', 'ubigeo_peru_districts.province_id')
+                            ->join('ubigeo_peru_departments', 'ubigeo_peru_departments.id','=','ubigeo_peru_districts.department_id')
+                            ->select('ubigeo_peru_districts.id as iddistrito', 'ubigeo_peru_districts.name as name_dist', 'ubigeo_peru_provinces.id as idprovincia', 'ubigeo_peru_provinces.name as name_prov', 'ubigeo_peru_departments.id as iddepartamento', 'ubigeo_peru_departments.name as name_dep')
+                            ->where('ubigeo_peru_districts.id', $persona->iddistrito)
+                            ->first();
+
+        $view = view('empresa.flota.modals.md_edit_persona', compact('persona', 'dep_persona', 'departamentos'))->render();
+        return response()->json(['html' => $view]);
+        
+    }
+
+    public function update_persona(Request $request)
+    {
+        try{
+            // DB::beginTransaction();
+
+            $search = Persona::where('dni', $request->dni)->first();
+
+            if(!isset($search)){
+                $persona = new Persona;
+                $persona->dni = $request->dni;
+                $persona->nombre = $request->nombre;
+                $persona->apellido_pat = $request->ape_pat;
+                $persona->apellido_mat = $request->ape_mat;
+                $persona->sexo = $request->sexo;
+                $persona->direccion = $request->direccion;
+                $persona->tipo_documento = $request->tipo_documento;
+                $persona->correo = $request->correo;
+                $persona->iddistrito = $request->distrito;
+                $persona->celular = $request->celular;
+                $persona->ref_direccion = $request->dir_referencia;
+                $persona->save(); 
+
+                $update = Flota::where('idflota', $request->idflota)->update([
+                    'idpersona'   =>    $persona->idpersona
+                ]);
+
+                return $update;
+                
+            }else{
+                $update = Flota::where('idflota', $request->idflota)->update([
+                    'idpersona'   =>    $search->idpersona  
+                ]);
+
+                return $update;
+            }
+            
+            
+
+        }catch (\Exception $e) {
+            // DB::rollback(); //Anular los cambios en la DB
+            //Si existe algún error en la Transacción
+            $response_ = response()->json([
+                'data' => null,
+                'error' => $e->getMessage(),
+                'message' => 'BAD'
+            ], 400);
+
+            return $response_;
+        }
     }
 
     public function baja_flota(Request $request)
@@ -480,6 +566,13 @@ class FlotaController extends Controller
     public function delete_tip_dato(Request $request)
     {
         $delete = DB::table('db_archivos_tcirculacion')->where('idarchivo_circulacion', $request->idarchivo_circulacion)->delete();
+
+        return $delete;
+    }
+
+    public function delete_flota(Request $request)
+    {
+        $delete = DB::table('db_emp_flota')->where('idflota', $request->idflota)->delete();
 
         return $delete;
     }

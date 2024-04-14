@@ -94,11 +94,20 @@ var btnStoreFlota = () => {
         success: function(response){       
             $("#modal_ver_em").modal('hide');     
             
-            var idflota = response.idflota;
+            if(response.status == 201){
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Se creó la flota!',
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+            }else{
+                var idflota = response.idflota;
 
-            var URLd = "{{ route('empresa.flota.flota_vista', ':idflota') }}".replace(':idflota', idflota);
+                var URLd = "{{ route('empresa.flota.flota_vista', ':idflota') }}".replace(':idflota', idflota);
 
-            window.location.href = URLd;
+                window.location.href = URLd;
+            }
         },
         error: function(jqxhr,textStatus,errorThrown){
             console.log(jqxhr.responseJSON.error);
@@ -197,6 +206,47 @@ var btnBajaFlotaAccion = (idflota) =>{
 
 
     }
+
+function EliminarFlota(idflota){
+    swal.fire({
+        title: "Seguro que desea eliminar la flota seleccionada?",
+        text: "La flota será eliminado totalmente del sistema",
+        icon: "error",
+        showCancelButton: !0,
+        confirmButtonText: "Aceptar",
+        cancelButtonText: "Cancelar"
+    }).then((result) => {
+        if (result.value) {
+            $.ajax({
+                url: "{{ route('empresa.flota.delete_flota') }}",
+                type: 'post',
+                data: {"_token": "{{ csrf_token() }}", idflota: idflota},
+                success: function(response){
+                    console.log(response);
+
+                    tabla_seccion(); 
+
+                    Toastify({
+                        text: "La flota se eliminó con exito",
+                        className: "danger",
+                        style: {
+                            background: "#DF1818",
+                        }
+                    }).showToast();
+
+                },
+                error: function(error){
+                    console.log('Error '+error);
+                }
+            });
+        }
+
+    })
+}
+
+
+
+
 </script>
     
 @endsection

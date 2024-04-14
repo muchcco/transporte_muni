@@ -9,6 +9,8 @@ use App\Http\Controllers\Empresa\FlotaController;
 use App\Http\Controllers\ExternoController;
 use App\Http\Controllers\Registro\VehiculoController;
 use App\Http\Controllers\Asset\UsuarioController;
+use App\Http\Controllers\Parametros\MarcaController;
+use App\Http\Controllers\Parametros\ModeloController;
 
 Route::get('externo', [ExternoController::class, 'externo'])->name('externo');
 
@@ -63,6 +65,12 @@ Route::group(['middleware' => ['auth']], function () {
             Route::post('/delete_tip_dato' , [FlotaController::class, 'delete_tip_dato'])->name('delete_tip_dato');
 
             Route::post('/add_vehiculo' , [FlotaController::class, 'add_vehiculo'])->name('add_vehiculo'); /// SE AÑADE EL ID DEL VEHICULO A LA TABLA BD_EMP_FLOTA
+
+            Route::post('/modals/md_edit_persona' , [FlotaController::class, 'md_edit_persona'])->name('modals.md_edit_persona');
+            Route::post('/update_persona' , [FlotaController::class, 'update_persona'])->name('update_persona');
+
+
+            Route::post('/delete_flota' , [FlotaController::class, 'delete_flota'])->name('delete_flota');
             
         });
     });
@@ -73,6 +81,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/tablas/tb_index' , [ConductorController::class, 'tb_index'])->name('tablas.tb_index');
         Route::post('/modals/md_crea_conductor' , [ConductorController::class, 'md_crea_conductor'])->name('modals.md_crea_conductor');
         Route::post('/store_conductor' , [ConductorController::class, 'store_conductor'])->name('store_conductor');
+        Route::post('/delete_conductor' , [ConductorController::class, 'delete_conductor'])->name('delete_conductor');
         Route::post('/modals/md_edit_persona' , [ConductorController::class, 'md_edit_persona'])->name('modals.md_edit_persona');
         Route::post('/update_conductor' , [ConductorController::class, 'update_conductor'])->name('update_conductor'); // GUARDATOS DE LA PERSONA
         Route::post('/modals/md_edit_conductor' , [ConductorController::class, 'md_edit_conductor'])->name('modals.md_edit_conductor');
@@ -105,6 +114,26 @@ Route::group(['middleware' => ['auth']], function () {
 
         Route::get('/padron_vehiculo_pdf/{idvehiculo}' , [VehiculoController::class, 'padron_vehiculo_pdf'])->name('padron_vehiculo_pdf'); // EXPORTA EN UN FORMATO PDF
 
+    });
+
+    Route::group(['prefix'=>'parametros.html','as'=>'parametros.' ],function () {
+        Route::get('/marca/index' , [MarcaController::class, 'index'])->name('marca.index');
+        Route::get('/marca/tablas/tb_index' , [MarcaController::class, 'tb_index'])->name('marca.tablas.tb_index');
+        Route::post('/marca/modals/md_add_marca' , [MarcaController::class, 'md_add_marca'])->name('marca.modals.md_add_marca');
+        Route::post('/marca/modals/md_edit_marca' , [MarcaController::class, 'md_edit_marca'])->name('marca.modals.md_edit_marca');
+        Route::post('/marca/store_marca' , [MarcaController::class, 'store_marca'])->name('marca.store_marca');
+        Route::post('/marca/update_marca' , [MarcaController::class, 'update_marca'])->name('marca.update_marca');
+        Route::post('/marca/delete_marca' , [MarcaController::class, 'delete_marca'])->name('marca.delete_marca');
+
+        /*** MODELO ***/
+
+        Route::get('/modelo/index' , [ModeloController::class, 'index'])->name('modelo.index');
+        Route::get('/modelo/tablas/tb_index' , [ModeloController::class, 'tb_index'])->name('modelo.tablas.tb_index');
+        Route::post('/modelo/modals/md_add_modelo' , [ModeloController::class, 'md_add_modelo'])->name('modelo.modals.md_add_modelo');
+        Route::post('/modelo/modals/md_edit_modelo' , [ModeloController::class, 'md_edit_modelo'])->name('modelo.modals.md_edit_modelo');
+        Route::post('/modelo/store_modelo' , [ModeloController::class, 'store_modelo'])->name('modelo.store_modelo');
+        Route::post('/modelo/update_modelo' , [ModeloController::class, 'update_modelo'])->name('modelo.update_modelo');
+        Route::post('/modelo/delete_modelo' , [ModeloController::class, 'delete_modelo'])->name('modelo.delete_modelo');
     });
 
     Route::group(['prefix'=>'usuarios.html','as'=>'usuarios.' ],function () {

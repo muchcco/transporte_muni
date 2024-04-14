@@ -117,7 +117,8 @@
                             <label class="required fs-6 fw-bold mb-2 ">Tipologia</label>
                             <select class="form-select form-select-solid" name="tipologia" id="tipologia" >
                                 <option value="1" >Auto Coletivo</option>
-                                <option value="2" >Microbus</option>                                                                    
+                                <option value="2" >Microbus</option>  
+                                <option value="3" >Mototaxi</option>                                                                    
                             </select>
                         </div>
                     </div>

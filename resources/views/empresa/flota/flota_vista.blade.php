@@ -35,13 +35,14 @@
             followCursor: true,
         });
     });
-    var btnEditPersona = (idconductor) => {
-        console.log(idconductor);
+    
+    var btnEditPersona = (idpersona) => {
+        console.log(idpersona);
         $.ajax({
             type:'post',
-            url: "{{ route('conductor.modals.md_edit_persona') }}",
+            url: "{{ route('empresa.flota.modals.md_edit_persona') }}",
             dataType: "json",
-            data:{"_token": "{{ csrf_token() }}", idconductor : idconductor},
+            data:{"_token": "{{ csrf_token() }}", idpersona : idpersona},
             success:function(data){
                 $("#modal_add_em").html(data.html);
                 $("#modal_add_em").modal('show');
@@ -218,6 +219,101 @@
         });
     } 
 
+    var btnUpdatePersona = (idpersona) => {
+
+        var formData = new FormData();
+        var idflota = "{{ $flota_empresa->idflota }}";
+
+        formData.append("idpersona", idpersona);
+        formData.append("idflota", idflota);
+        formData.append("tipo_documento", $("#tipo_documento").val());
+        formData.append("dni", $("#dni").val());
+        formData.append("ruc", $("#ruc").val());
+        formData.append("nombre", $("#nombre").val());
+        formData.append("ape_pat", $("#ape_pat").val());
+        formData.append("ape_mat", $("#ape_mat").val());
+        formData.append("sexo", $("#sexo").val());
+        formData.append("direccion", $("#direccion").val());
+        formData.append("correo", $("#correo").val());
+        formData.append("distrito", $("#distrito").val());
+        formData.append("dir_referencia", $("#dir_referencia").val());
+        formData.append("celular", $("#celular").val());
+        formData.append("_token", $("#_token").val());
+
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            cache: false,
+            url: "{{ route('empresa.flota.update_persona') }}",
+            data: formData,
+            processData: false,
+            contentType: false,
+            beforeSend: function () {
+                document.getElementById("btnEnviarForm").innerHTML = '<i class="fa fa-spinner fa-spin"></i> Cargando datos...';
+                document.getElementById("btnEnviarForm").disabled = true;
+            },
+            xhr: function() {
+                var xhr = new window.XMLHttpRequest();
+                xhr.upload.addEventListener('progress', function(e) {
+                    if (e.lengthComputable) {
+                        // Calcula el porcentaje de progreso y actualiza el elemento
+                        var porcentaje = (e.loaded / e.total) * 100;
+                        porcentajeElemento.text(porcentaje.toFixed(2) + '%');
+                    }
+                }, false);
+                return xhr;
+            },
+            success: function(result){            
+                
+                if(!(result.error)){
+                    $( "#act_persona" ).load(window.location.href + " #act_persona" ); 
+                    $( "#datos_principales" ).load(window.location.href + " #datos_principales" ); 
+                    $("#modal_add_em").modal('hide');
+
+                    toastr.options = {
+                        "closeButton": false,
+                        "debug": false,
+                        "newestOnTop": false,
+                        "progressBar": false,
+                        "positionClass": "toast-bottom-right",
+                        "preventDuplicates": false,
+                        "onclick": null,
+                        "showDuration": "300",
+                        "hideDuration": "1000",
+                        "timeOut": "5000",
+                        "extendedTimeOut": "1000",
+                        "showEasing": "swing",
+                        "hideEasing": "linear",
+                        "showMethod": "fadeIn",
+                        "hideMethod": "fadeOut"
+                    };
+
+                    toastr.success("El conductor se guardo con exito!", "Guardado:");
+                }else{
+                    $( "#act_persona" ).load(window.location.href + " #act_persona" ); 
+                    $( "#datos_principales" ).load(window.location.href + " #datos_principales" ); 
+                    $("#modal_add_em").modal('hide');
+
+                    Swal.fire(
+                        'Error!',
+                        'El conductor ya fue registrado!',
+                        'error'
+                    )
+                }
+            },
+            error: function(jqxhr,textStatus,errorThrown){
+                console.log(jqxhr.responseJSON.error);
+                console.log(textStatus);
+                console.log(errorThrown);          
+                
+                document.getElementById("btnEnviarForm").innerHTML = 'ENVIAR';
+                document.getElementById("btnEnviarForm").disabled = false;
+            }
+        });
+
+
+    }
+
     var btnSaveVehiculo = () =>{
 
         if($("#subtipo").val()  == '0' || $("#subtipo").val()  == '' || $("#subtipo").val()  == null){
@@ -274,7 +370,6 @@
                     $( "#vehiculo_div" ).load(window.location.href + " #vehiculo_div" );            
                     $( "#archivo_vehiculo_dat" ).load(window.location.href + " #archivo_vehiculo_dat" );
                     location.reload();
-                    porcentajeElemento.text('100%');
 
                         toastr.options = {
                             "closeButton": false,
@@ -784,19 +879,20 @@ var btnStoreFlota = () => {
                         <div class="card mb-5 mb-xl-8">
                         
                             <!--begin::Card body-->
+                            @if($persona)
                             <div class="card-body">
                                 
                                 <!--begin::Summary-->
                                 <!--begin::User Info-->
                                 <div class="d-flex flex-center flex-column py-5" id="datos_principales">
                                     <!--begin::Avatar-->
-                                    <div class="symbol symbol-100px symbol-circle mb-7">
+                                    <div class="symbol symbol-100px symbol-circle mb-7" id="upda_per">
                                         {{-- <img src="assets/media/avatars/150-1.jpg" alt="image"> --}}
                                         <div class="symbol-label  fw-semibold bg-primary text-inverse-primary" style="font-size: 5em">{{ $persona->apellido_pat[0] }}</div>
                                     </div>
                                     <!--end::Avatar-->
                                     <!--begin::Name-->
-                                    <a href="#" class="fs-3 text-gray-800 text-hover-primary fw-bolder mb-3">{{ $persona->apellido_pat }} {{ $persona->apellido_mat }}, {{ $persona->nombre }}</a>
+                                    <a href="#" id="upda_per" class="fs-3 text-gray-800 text-hover-primary fw-bolder mb-3">{{ $persona->apellido_pat }} {{ $persona->apellido_mat }}, {{ $persona->nombre }}</a>
                                     <!--end::Name-->
                                     <!--begin::Position-->
                                     <div class="mb-9">
@@ -914,6 +1010,9 @@ var btnStoreFlota = () => {
                                 </div>
                                 <!--end::Details content-->
                             </div>
+                            @else
+                                asdasd
+                            @endif
                             <!--end::Card body-->
                             <div class="card-footer border-0 d-flex justify-content-end pt-0">
                                 <a href="{{ route('empresa.flota.index', $flota_empresa->idempresa) }}" class="btn btn-sm btn-light-info">Regresar</a>
@@ -1033,7 +1132,7 @@ var btnStoreFlota = () => {
                                                     </tr>
                                                     <tr>
                                                         <th>MARCA:</th>
-                                                        <th>{{ $marca_v->name_marca ? ' - ' : '' }}</th>
+                                                        <th>{{ $marca_v->name_marca ? $marca_v->name_marca : '' }}</th>
                                                         <th>AÑO DE FABRICACION:</th>
                                                         <th>{{ $vehiculo->año_fabricacion }}</th>
                                                     </tr>

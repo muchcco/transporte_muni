@@ -195,7 +195,7 @@ class RecursosController extends Controller
 
         $options = '<option value="">Selecciona una opción</option>';
         foreach ($subtipo as $sub) {
-            $options .= '<option value="' . $sub->idsubtipo_vehiculo . '">' . $sub->min_nombre . '</option>';
+            $options .= '<option value="' . $sub->idsubtipo_vehiculo . '">' . $sub->nombre . '</option>';
         }
 
         return $options;

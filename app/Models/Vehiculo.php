@@ -33,7 +33,9 @@ class Vehiculo extends Model
                             'fecha_recibo',
                             'n_padron',
                             'pago_padron',
-                            'flag'    
+                            'flag',
+                            'expediente_doc',
+                            'fecha_expediente'
                         ];
 
     public $timestamps = true;

@@ -13,6 +13,7 @@ use App\Models\Vehiculo;
 use App\Models\Archivo;
 use App\Models\Archivoconductor;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\File;
 
 class ConductorController extends Controller
 {
@@ -149,6 +150,29 @@ class ConductorController extends Controller
 
             return $response_;
         }
+    }
+
+    public function delete_conductor(Request $request)
+    {
+        $id_archivo = Archivoconductor::where('idconductor', $request->idconductor)->get();
+
+        foreach ($id_archivo as $archivo) {
+            
+            if(file_exists( $archivo->ruta)){
+                $del = unlink($archivo->ruta);
+
+                // dd($del);q
+            }else{
+                // dd('no paso');
+            }
+
+        }
+
+        $delete = Archivoconductor::where('idconductor', $request->idvehiculo_archivo)->delete();
+
+        $del_conductor = Conductor::where('idconductor', $request->idconductor)->delete();
+
+        return $del_conductor;
     }
 
     public function reg_completo(Request $request, $idconductor)

@@ -189,11 +189,25 @@ class VehiculoController extends Controller
 
     public function baja_vehiculo(Request $request)
     {
-        $update = Vehiculo::findOrFail($request->idvehiculo);
-        $update->flag = 0;
-        $update->save();
+        $id_archivo = Archivovehiculo::where('idvehiculo', $request->idvehiculo)->get();
 
-        return $update;
+        foreach ($id_archivo as $archivo) {
+            
+            if(file_exists( $archivo->ruta)){
+                $del = unlink($archivo->ruta);
+
+                // dd($del);q
+            }else{
+                // dd('no paso');
+            }
+
+        }
+
+        $delete = Archivovehiculo::where('idconductor', $request->idvehiculo_archivo)->delete();
+
+        $del_vehiculo = Vehiculo::where('idvehiculo', $request->idvehiculo)->delete();
+
+        return $del_vehiculo;
     }
 
     public function reg_completo(Request $request, $idvehiculo)
@@ -259,6 +273,8 @@ class VehiculoController extends Controller
         $update->n_recibo = $request->n_recibo;
         $update->fecha_recibo = $request->fecha_recibo;
         $update->monto_recibo = $request->monto_recibo;
+        $update->expediente_doc = $request->n_expediente;
+        $update->fecha_expediente = $request->fecha_expediente;
         // dd($update);
         $update->save();
 
@@ -311,9 +327,10 @@ class VehiculoController extends Controller
         $persona = Persona::where('idpersona', $vehiculo->idpersona)->first();
 
         $marca_v = DB::table('db_vehiculo_tipo as t')->join('db_vehiculo_subtipo as s', 's.id_tipo_vehiculo', '=', 't.idtipo_vehiculo')
-                        ->select('t.min_nombre as name_marca', 's.min_nombre as name_modelo')
+                        ->select('t.min_nombre as name_marca', 's.min_nombre as name_modelo', 't.*', 's.*')
                         ->where('s.idsubtipo_vehiculo', $vehiculo->idmodelo)
                         ->first();
+                        // dd($marca_v);
 
         $dep_persona = DB::table('ubigeo_peru_districts')
                         ->join('ubigeo_peru_provinces', 'ubigeo_peru_provinces.id', '=', 'ubigeo_peru_districts.province_id')

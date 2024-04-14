@@ -79,7 +79,7 @@
     <section>
         <center><strong>EMPADRONAMIENTO DEL VEHICULAR</strong></center>
         <br />
-        <p>Visto el Exp. Adm. Nº 15710-2021, de fecha 01 de SETIEMBRE de 2021 presentado por el (la) SR(a). {{ $persona->apellido_pat }} {{ $persona->apellido_mat }}, {{ $persona->nombre }}  Identificado con DNI. N° {{ $persona->dni }}, Domiciliado en {{ $persona->direccion }}; Distrito {{ $dep_persona->name_dist }}, Provincia {{ $dep_persona->name_prov }} y Departamento de {{ $dep_persona->name_dep }} , el cual solicita el Empadronamiento del Vehículo de la placa de rodaje: {{ $vehiculo->n_placa }}, para realizar el Servicio de Transporte Terrestre en {{ $vehiculo->tipologia }}, revisado los documentos adjuntos al presente, se deja Constancia de lo siguiente: 
+        <p>Visto el Exp. Adm. Nº {{ $vehiculo->expediente_doc }}, de fecha <?php setlocale(LC_TIME, 'es_PE', 'Spanish_Spain', 'Spanish'); echo strftime('%d de %B del %Y',strtotime($vehiculo->fecha_expediente));  ?> presentado por el (la) SR(a). {{ $persona->apellido_pat }} {{ $persona->apellido_mat }}, {{ $persona->nombre }}  Identificado con DNI. N° {{ $persona->dni }}, Domiciliado en {{ $persona->direccion }}; Distrito {{ $dep_persona->name_dist }}, Provincia {{ $dep_persona->name_prov }} y Departamento de {{ $dep_persona->name_dep }} , el cual solicita el Empadronamiento del Vehículo de la placa de rodaje: {{ $vehiculo->n_placa }}, para realizar el Servicio de Transporte Terrestre en {{ $vehiculo->tipologia }}, revisado los documentos adjuntos al presente, se deja Constancia de lo siguiente: 
             
             </p>
             <br />
@@ -108,13 +108,13 @@
                 </tr>
                 <tr>
                     <th>MARCA:</th>
-                    <th>{{ isset($marca_v->name_marca) ? ' - ' : ' Actualizar '}}</th>
+                    <th>{{ isset($marca_v->name_marca) ? $marca_v->name_marca : ' Actualizar '}}</th>
                     <th>AÑO DE FABRICACION:</th>
                     <th>{{ $vehiculo->año_fabricacion }}</th>
                 </tr>
                 <tr>
                     <th>MODELO:</th>
-                    <th>{{ isset($marca_v->name_modelo) ? ' - ' : ' Actualizar '}}</th>
+                    <th>{{ isset($marca_v->name_modelo) ? $marca_v->name_modelo : ' Actualizar '}}</th>
                     <th>ASIENTOS:</th>
                     <th>{{ $vehiculo->n_asientos }}</th>
                 </tr>
@@ -126,7 +126,7 @@
                 </tr>
             </table>
             <br />
-            <p>Se expide el presente a solicitud escrita del interesado, debiendo cancelar en Caja de la Municipalidad Provincial de Huancavelica la suma de S/. 10.00 (DIEZ Y 00/  SOLES) por dicho concepto. </p>
+            <p>Se expide el presente a solicitud escrita del interesado, debiendo cancelar en Caja de la Municipalidad Provincial de Huancavelica la suma de S/. {{ $vehiculo->monto_recibo }} (DIEZ Y 00/  SOLES) por dicho concepto. </p>
     </section>
 
 

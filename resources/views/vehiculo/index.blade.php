@@ -218,7 +218,7 @@ var EliminarVehiculo = (idvehiculo) => {
                     data: {"_token": "{{ csrf_token() }}", idvehiculo: idvehiculo},
                     success: function(response){
                         console.log(response);
-
+                        tabla_seccion()
                         $( "#archivos_body" ).load(window.location.href + " #archivos_body" ); 
 
                         Swal.fire({

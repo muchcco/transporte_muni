@@ -72,6 +72,8 @@ var btnUpdateVehiculo = (idvehiculo) => {
     formData.append("n_recibo", $("#n_recibo").val());
     formData.append("fecha_recibo", $("#fecha_recibo").val());
     formData.append("monto_recibo", $("#monto_recibo").val());
+    formData.append("n_expediente", $("#n_expediente").val());
+    formData.append("fecha_expediente", $("#fecha_expediente").val());
     formData.append("_token", $("#_token").val());
 
     // Selector para mostrar el porcentaje
@@ -524,13 +526,13 @@ var btnDeleteArchivo = (idvehiculo_archivo) => {
                                             </tr>
                                             <tr>
                                                 <th>MARCA:</th>
-                                                <th>{{ isset($marca_v->name_marca) ? ' - ' : ' Actualizar '}}</th>
+                                                <th>{{ isset($marca_v->name_marca) ? $marca_v->name_marca : ' Actualizar '}}</th>
                                                 <th>AÑO DE FABRICACION:</th>
                                                 <th>{{ $vehiculo->año_fabricacion }}</th>
                                             </tr>
                                             <tr>
                                                 <th>MODELO:</th>
-                                                <th>{{ isset($marca_v->name_modelo) ? ' - ' : ' Actualizar '}}</th>
+                                                <th>{{ isset($marca_v->name_modelo) ? $marca_v->name_modelo : ' Actualizar '}}</th>
                                                 <th>ASIENTOS:</th>
                                                 <th>{{ $vehiculo->n_asientos }}</th>
                                             </tr>
